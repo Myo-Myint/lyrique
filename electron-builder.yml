@@ -14,8 +14,8 @@ extraResources:
     to: trayTemplate.png
   - from: build/trayTemplate@2x.png
     to: trayTemplate@2x.png
-  # Windows and Linux tray icon (in colour).
-  - from: build/icon.png
+  # Windows and Linux tray icon (in colour, the full-square version).
+  - from: build/icon-win.png
     to: icon.png
 # Name every download by architecture, so Intel and Apple Silicon builds are easy to tell apart.
 artifactName: ${productName}-${version}-${arch}.${ext}
@@ -42,7 +42,7 @@ win:
   target:
     - target: nsis
       arch: [x64, arm64]
-  icon: build/icon.png
+  icon: build/icon-win.png
 nsis:
   # Installs for the current user: no administrator prompt, Start menu and desktop shortcuts.
   oneClick: true

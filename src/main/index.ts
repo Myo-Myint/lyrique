@@ -331,7 +331,7 @@ function diagnostics(): string {
 function trayIcon() {
   // Windows: the app icon, in colour (a black template icon vanishes on a dark taskbar).
   if (!isMac) {
-    const p = join(app.isPackaged ? process.resourcesPath : join(__dirname, '../../build'), 'icon.png')
+    const p = app.isPackaged ? join(process.resourcesPath, 'icon.png') : join(__dirname, '../../build/icon-win.png')
     return nativeImage.createFromPath(p).resize({ width: 32, height: 32 })
   }
   // "Template" suffix lets macOS tint it for light/dark menu bars.

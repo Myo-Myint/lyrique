@@ -66,6 +66,11 @@ npm run dist:release   # macOS: dmg + zip for arm64 and x64
 npm run dist:win       # Windows: NSIS installers for x64 and arm64
 ```
 
+Icons are drawn from one master, `build/icon.svg` (full-bleed, unmasked, as Apple's icon
+guidelines ask). After changing it, run `node scripts/make-icons.mjs` (needs Google Chrome) to
+regenerate the Mac and Windows app icons, the extension icons, the website icon and the menu
+bar template icons.
+
 Always build Windows installers with `dist:win`. It forces 7-Zip's BCJ filter, because the
 installer's unpacker can't read the ARM64 filter that newer 7-Zip picks for arm64 binaries.
 

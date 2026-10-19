@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'"
+    />
+    <title>Lyrique Mini</title>
+    <link rel="stylesheet" href="./mini.css" />
+  </head>
+  <body>
+    <div id="bar">
+      <img id="art" alt="" hidden />
+      <div id="text">
+        <div id="cur"></div>
+        <div id="sub"></div>
+      </div>
+      <div id="ctrl">
+        <button id="play" data-i18n-title="mini.playPause"><svg viewBox="0 0 24 24" class="i-pause"><path d="M8 5v14M16 5v14" /></svg><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4.5v15L19.5 12z" class="fill" /></svg></button>
+        <button id="open" data-i18n-title="mini.open"><svg viewBox="0 0 16 16"><path d="M9.5 2.5h4v4M13.5 2.5 8 8M6.5 3.5h-3v9h9v-3" /></svg></button>
+        <button id="close" data-i18n-title="mini.close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg></button>
+      </div>
+      <i id="progress"></i>
+    </div>
+    <script type="module" src="./mini.ts"></script>
+  </body>
+</html>

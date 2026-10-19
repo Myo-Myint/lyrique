@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lyrique</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="bg" aria-hidden="true">
+      <img id="bg-art" class="bg-art" alt="" />
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div id="vignette"></div>
+      <div id="noise"></div>
+    </div>
+
+    <header id="top">
+      <img id="art" alt="" hidden />
+      <div class="meta">
+        <div id="title">Lyrique</div>
+        <div id="artist" data-i18n="app.waiting">Waiting for music</div>
+      </div>
+      <div class="controls">
+        <button id="offset-minus" class="icon" data-i18n-title="top.earlier">
+          <svg viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
+        </button>
+        <button id="offset" class="pill" data-i18n-title="top.resetOffset">0.0 s</button>
+        <button id="offset-plus" class="icon" data-i18n-title="top.later">
+          <svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" /></svg>
+        </button>
+        <span class="sep"></span>
+        <button id="refetch" class="icon" data-i18n-title="top.choose">
+          <svg viewBox="0 0 16 16"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" /></svg>
+        </button>
+        <button id="settings-btn" class="icon" data-i18n-title="top.settings">
+          <svg viewBox="0 0 16 16"><path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7" /><circle cx="11" cy="4.5" r="1.5" /><circle cx="5" cy="11.5" r="1.5" /></svg>
+        </button>
+        <button id="fullscreen" class="icon" data-i18n-title="top.fullscreen">
+          <svg viewBox="0 0 16 16"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="stage">
+      <div id="lines"></div>
+    </main>
+
+    <section id="plain" hidden>
+      <div class="plain-head">
+        <div class="plain-label" data-i18n="plain.label">Unsynced lyrics</div>
+        <button id="plain-sync" class="chip" data-i18n="plain.sync">Sync these lyrics</button>
+      </div>
+      <pre id="plain-text"></pre>
+    </section>
+
+    <section id="empty">
+      <div id="empty-icon"></div>
+      <h1 id="empty-title" data-i18n="empty.connecting">Connecting…</h1>
+      <p id="empty-body"></p>
+      <div id="empty-actions"></div>
+    </section>
+
+    <section id="editor" hidden aria-label="Sync lyrics">
+      <div class="ed-card">
+        <div class="ed-head">
+          <div>
+            <div class="ed-kicker" data-i18n="editor.kicker">Sync lyrics</div>
+            <div id="ed-song" class="ed-song"></div>
+          </div>
+          <button id="ed-close" class="icon" data-i18n-title="close.esc">
+            <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
+        </div>
+        <div id="ed-body"></div>
+        <p id="ed-status" class="ed-help"></p>
+        <div id="ed-actions" class="ed-actions"></div>
+      </div>
+    </section>
+
+    <section id="picker" hidden aria-label="Choose lyrics">
+      <div class="ed-card picker-card">
+        <div class="ed-head">
+          <div>
+            <div class="ed-kicker" data-i18n="picker.kicker">Choose lyrics</div>
+            <div id="pk-song" class="ed-song"></div>
+          </div>
+          <button id="pk-close" class="icon" data-i18n-title="close.esc">
+            <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
+        </div>
+        <p id="pk-status" class="ed-help"></p>
+        <div id="pk-list"></div>
+        <div class="ed-actions">
+          <button id="pk-auto" class="chip small" data-i18n="picker.auto">Automatic choice</button>
+          <button id="pk-search" class="chip small" data-i18n="picker.searchAgain">Search again</button>
+          <button id="pk-sync" class="chip small" data-i18n="picker.syncYourself">Sync it yourself</button>
+        </div>
+      </div>
+    </section>
+
+    <aside id="np" aria-label="Now playing">
+      <img id="np-art" alt="" hidden data-i18n-title="np.cover" />
+      <div class="np-meta">
+        <div id="np-title"></div>
+        <div id="np-artist"></div>
+        <div id="np-bar"><i id="np-fill"></i></div>
+        <div id="np-time"><span id="np-pos">0:00</span><span id="np-dur">0:00</span></div>
+        <div id="np-ctrl">
+          <button data-cmd="previous" data-i18n-title="np.previous">
+            <svg viewBox="0 0 24 24"><path d="M6 5v14" /><path d="M19 5 9 12l10 7z" class="fill" /></svg>
+          </button>
+          <button data-cmd="back10" data-i18n-title="np.back10">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7" /><path d="M4 3.5v4h4" /><text x="12" y="15.2" text-anchor="middle">10</text></svg>
+          </button>
+          <button data-cmd="playPause" id="np-play" class="main play-btn" data-i18n-title="np.playPause">
+            <svg viewBox="0 0 24 24" class="i-pause"><path d="M8 5v14M16 5v14" /></svg>
+            <svg viewBox="0 0 24 24" class="i-play"><path d="M7 4.5v15L19.5 12z" class="fill" /></svg>
+          </button>
+          <button data-cmd="fwd10" data-i18n-title="np.fwd10">
+            <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7" /><path d="M20 3.5v4h-4" /><text x="12" y="15.2" text-anchor="middle">10</text></svg>
+          </button>
+          <button data-cmd="next" data-i18n-title="np.next">
+            <svg viewBox="0 0 24 24"><path d="M18 5v14" /><path d="M5 5l10 7-10 7z" class="fill" /></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <section id="settings" class="overlay" hidden aria-label="Settings">
+      <div class="ed-card settings-card">
+        <div class="ed-head">
+          <div>
+            <div class="ed-kicker">Lyrique</div>
+            <div class="ed-song" data-i18n="settings.title">Settings</div>
+          </div>
+          <button id="st-close" class="icon" data-i18n-title="close.esc">
+            <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
+        </div>
+        <div id="st-body"></div>
+      </div>
+    </section>
+
+    <section id="whatsnew" class="overlay" hidden aria-label="What's new">
+      <div class="ed-card whatsnew-card">
+        <div class="ed-head">
+          <div>
+            <div class="ed-kicker" data-i18n="new.kicker">What’s new</div>
+            <div id="wn-title" class="ed-song"></div>
+          </div>
+          <button id="wn-close" class="icon" data-i18n-title="close.esc">
+            <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
+        </div>
+        <div id="wn-list"></div>
+        <div class="ed-actions">
+          <button id="wn-keys" class="chip small" data-i18n="new.allKeys">All shortcuts</button>
+          <button id="wn-done" class="chip primary" data-i18n="new.done">Done</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="keys" class="overlay" hidden aria-label="Keyboard shortcuts">
+      <div class="ed-card keys-card">
+        <div class="ed-head">
+          <div>
+            <div class="ed-kicker">Lyrique</div>
+            <div class="ed-song" data-i18n="keys.title">Keyboard shortcuts</div>
+          </div>
+          <button id="keys-close" class="icon" data-i18n-title="close.esc">
+            <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
+        </div>
+        <div id="keys-list"></div>
+      </div>
+    </section>
+
+    <section id="setup" hidden aria-label="Set up Lyrique">
+      <div class="ed-card setup-card">
+        <div>
+          <div class="ed-kicker" data-i18n="setup.kicker">Welcome to Lyrique</div>
+          <div class="ed-song" data-i18n="setup.title">Get set up</div>
+          <p id="setup-sub" class="ed-help"></p>
+        </div>
+        <div id="setup-list"></div>
+        <div class="ed-actions">
+          <button id="setup-diag" class="link" data-i18n-title="setup.diagnosticsTip" data-i18n="setup.diagnostics">Copy diagnostics</button>
+          <button id="setup-done" class="chip primary" data-i18n="setup.skip">Skip for now</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="notice" hidden role="status">
+      <span id="notice-text"></span>
+      <button id="notice-copy" class="chip small" data-i18n="notice.copyExtensions">Copy chrome://extensions</button>
+      <button id="notice-close" class="icon" data-i18n-title="dismiss">
+        <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+      </button>
+    </div>
+
+    <div id="karaoke-title" aria-hidden="true"></div>
+    <div id="toast" hidden role="status"><span id="toast-text"></span><button id="toast-action" class="chip small" hidden></button></div>
+
+    <div id="ctrl">
+      <button data-cmd="previous" data-i18n-title="np.previous">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14" /><path d="M19 5 9 12l10 7z" class="fill" /></svg>
+      </button>
+      <button data-cmd="playPause" class="main play-btn" data-i18n-title="np.playPause">
+        <svg viewBox="0 0 24 24" class="i-pause"><path d="M8 5v14M16 5v14" /></svg>
+        <svg viewBox="0 0 24 24" class="i-play"><path d="M7 4.5v15L19.5 12z" class="fill" /></svg>
+      </button>
+      <button data-cmd="next" data-i18n-title="np.next">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14" /><path d="M5 5l10 7-10 7z" class="fill" /></svg>
+      </button>
+    </div>
+
+    <footer id="foot"><span id="source"></span><span id="user-sync"></span><span class="foot-right"><button id="keys-btn" class="foot-key" data-i18n-title="foot.keys">?</button><span id="conn" class="dot"></span></span></footer>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

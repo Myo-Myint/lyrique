@@ -1,0 +1,2142 @@
+:root {
+  --c1: #5a4a8a;
+  --c2: #2a6a7a;
+  --c3: #8a3a5a;
+  --fg: #fff;
+  --spring: linear(
+    0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%,
+    1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%,
+    0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1
+  );
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Inter, system-ui, sans-serif;
+  --text-scale: 1;
+  --lyric-size: calc(clamp(24px, 5.4vw, 52px) * var(--text-scale));
+  --anchor: 0.38; /* active line sits this far down the stage */
+  --blur-on: 1;
+  --lyric-font: var(--font);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #0c0c12;
+  color: var(--fg);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+/* ------------------------------ background ------------------------------ */
+
+#bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 20% 10%, var(--c1), transparent 60%),
+    radial-gradient(100% 90% at 85% 25%, var(--c2), transparent 60%),
+    radial-gradient(110% 100% at 50% 100%, var(--c3), #0c0c12 70%);
+  transition: background 1.2s ease;
+}
+
+.bg-art {
+  position: absolute;
+  inset: -20%;
+  width: 140%;
+  height: 140%;
+  object-fit: cover;
+  filter: blur(90px) saturate(1.8) brightness(0.55);
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  animation: drift 40s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.bg-art.ready {
+  opacity: 0.9;
+}
+
+.blob {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.b1 {
+  background: var(--c1);
+  top: -30vmax;
+  left: -20vmax;
+  animation: float1 28s ease-in-out infinite alternate;
+}
+
+.b2 {
+  background: var(--c2);
+  right: -30vmax;
+  top: 10vmax;
+  animation: float2 34s ease-in-out infinite alternate;
+}
+
+.b3 {
+  background: var(--c3);
+  bottom: -35vmax;
+  left: 10vmax;
+  animation: float3 31s ease-in-out infinite alternate;
+}
+
+#vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 40%, transparent 40%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent 25%, transparent 70%, rgba(0, 0, 0, 0.5));
+}
+
+#noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+@keyframes drift {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(8deg) scale(1.12);
+  }
+}
+@keyframes float1 {
+  to {
+    transform: translate(18vmax, 14vmax) scale(1.15);
+  }
+}
+@keyframes float2 {
+  to {
+    transform: translate(-16vmax, 18vmax) scale(0.9);
+  }
+}
+@keyframes float3 {
+  to {
+    transform: translate(12vmax, -14vmax) scale(1.1);
+  }
+}
+
+/* -------------------------------- header -------------------------------- */
+
+#top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px 0 82px; /* clear the traffic lights */
+  -webkit-app-region: drag;
+  z-index: 5;
+  transition: opacity 0.6s ease, transform 0.6s var(--ease-out);
+}
+
+body.idle #top,
+body.idle #foot {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#art {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  flex: none;
+}
+
+.meta {
+  min-width: 0;
+  flex: 1;
+  line-height: 1.2;
+}
+
+#title {
+  font-weight: 650;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#artist {
+  font-size: 12.5px;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+button.icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+  transition: background 0.2s, opacity 0.2s, transform 0.2s;
+}
+
+button.icon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+button.icon:hover {
+  background: rgba(255, 255, 255, 0.14);
+  opacity: 1;
+}
+
+button.icon:active {
+  transform: scale(0.92);
+}
+
+button.icon.on {
+  background: var(--fg);
+  color: #111;
+  opacity: 1;
+}
+
+button.pill {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 6px;
+  min-width: 48px;
+  opacity: 0.85;
+}
+
+.sep {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 3px;
+}
+
+/* --------------------------------- lyrics -------------------------------- */
+
+#stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  padding: 0 clamp(20px, 7vw, 64px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 78%, transparent 100%);
+}
+
+#lines {
+  font-family: var(--lyric-font);
+  max-width: 24em;
+  font-size: var(--lyric-size);
+  will-change: transform;
+  transition: transform 0.75s var(--spring);
+  padding: 50vh 0;
+}
+
+/* Reduce motion: lines step into place (main.ts adds a soft dissolve), nothing scales or
+   lifts, and the background holds still. Colour and opacity changes still fade. */
+body.reduced #lines {
+  transition: none !important;
+}
+body.reduced .line,
+body.reduced .line.active {
+  transform: none;
+  transition: opacity 0.45s ease, filter 0.45s ease, color 0.4s ease;
+}
+body.reduced .line.active .w.sung {
+  top: 0;
+}
+body.reduced .blob,
+body.reduced .bg-art,
+body.reduced .dots.active,
+body.reduced #empty-icon.pulse {
+  animation: none;
+}
+
+.line {
+  --d: 1;
+  position: relative;
+  font-size: var(--lyric-size);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
+  padding: 0.28em 0.2em;
+  margin: 0 -0.2em;
+  border-radius: 0.3em;
+  transform-origin: left center;
+  transform: scale(0.92);
+  opacity: clamp(0.14, calc(0.52 - var(--d) * 0.085), 0.52);
+  filter: blur(calc(min(var(--d), 4) * 1.1px * var(--blur-on)));
+  color: rgba(255, 255, 255, 0.9);
+  transition: transform 0.7s var(--spring), opacity 0.55s ease, filter 0.55s ease, color 0.4s ease;
+  cursor: pointer;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.line:hover {
+  background: rgba(255, 255, 255, 0.07);
+  opacity: 0.85;
+  filter: none;
+}
+
+.line.active {
+  transform: scale(1);
+  opacity: 1;
+  filter: none;
+  color: #fff;
+  text-shadow: 0 0 28px rgba(255, 255, 255, 0.25);
+}
+
+.line.past {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.line.empty {
+  padding: 0;
+}
+
+.line.empty.active {
+  padding: 0;
+}
+
+/* word-level highlight: a linear left→right wipe driven by --p (0..1).
+   Registered so the engine treats it as a number, not a string to re-parse. */
+@property --p {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.line {
+  --feather: 0.5em; /* soft edge ≈ half a line height (AMLL) */
+}
+
+/* Estimated timings get a softer edge: it hides timing error better than a crisp one. */
+.line.estimated {
+  --feather: 0.8em;
+}
+
+.w {
+  --p: 0;
+  display: inline;
+  position: relative;
+  top: 0;
+  background-image: linear-gradient(
+    90deg,
+    #fff calc(var(--p) * (100% + var(--feather)) - var(--feather)),
+    rgba(255, 255, 255, 0.42) calc(var(--p) * (100% + var(--feather)))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  white-space: pre-wrap;
+  /* Lift eases over max(1 s, word duration) and drops back quickly. */
+  transition: top 0.3s ease, filter 0.5s ease;
+}
+
+/* text-shadow would paint over a background-clip:text fill and wash out the wipe. */
+.line.active .w {
+  text-shadow: none;
+}
+
+/* Every sung word rises a touch and stays up for the rest of the line (AMLL: 0.05em). */
+.line.active .w.sung {
+  top: -0.05em;
+  transition: top var(--lift-ms, 1000ms) var(--ease-out), filter 0.5s ease;
+}
+
+/* Glow only on held words (≥1 s); a filter, since text-shadow fights background-clip. */
+.line.active .w.glow {
+  filter: drop-shadow(0 0 0.22em rgba(255, 255, 255, 0.55));
+}
+
+.line.past .w,
+.line.future .w {
+  background-image: none;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* interlude dots */
+.dots {
+  display: flex;
+  gap: 0.35em;
+  align-items: center;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 0.2em;
+  margin: 0 -0.2em;
+  font-size: var(--lyric-size);
+  transform-origin: left center;
+  transition: height 0.6s var(--ease-out), opacity 0.5s ease, transform 0.6s var(--ease-out), padding 0.6s var(--ease-out);
+}
+
+.dots.active {
+  height: 1.6em;
+  opacity: 1;
+  padding: 0.3em 0.2em;
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+.dots i {
+  --f: 0;
+  width: 0.46em;
+  height: 0.46em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, calc(0.25 + var(--f) * 0.75));
+  box-shadow: 0 0 calc(var(--f) * 12px) rgba(255, 255, 255, calc(var(--f) * 0.6));
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* --------------------------------- plain --------------------------------- */
+
+#plain {
+  position: fixed;
+  inset: 64px 0 40px;
+  overflow-y: auto;
+  padding: 10px clamp(20px, 7vw, 64px) 60px;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 6%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 6%, #000 92%, transparent 100%);
+  user-select: text;
+}
+
+#plain::-webkit-scrollbar {
+  width: 0;
+}
+
+.plain-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin: 14px 0 18px;
+}
+
+#plain-text {
+  font: inherit;
+  font-family: var(--lyric-font);
+  font-size: calc(clamp(18px, 3.2vw, 28px) * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
+  opacity: 0.92;
+}
+
+/* --------------------------------- empty --------------------------------- */
+
+#empty {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  gap: 8px;
+  transition: opacity 0.4s ease;
+}
+
+#empty[hidden] {
+  display: none;
+}
+
+#empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+#empty-icon svg {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#empty-icon.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 0 10px rgba(255, 255, 255, 0.05);
+  }
+}
+
+#empty h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+#empty p {
+  margin: 0;
+  max-width: 380px;
+  opacity: 0.7;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#empty p code {
+  font: 12px ui-monospace, Menlo, monospace;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+#empty-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+#empty-actions button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-weight: 600;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+#empty-actions button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#empty-actions button.primary {
+  background: #fff;
+  color: #111;
+}
+
+/* --------------------------------- footer -------------------------------- */
+
+#foot {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  transition: opacity 0.6s ease;
+  z-index: 5;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8e8e93;
+  box-shadow: 0 0 0 3px rgba(142, 142, 147, 0.25);
+}
+
+.dot.on {
+  background: #34c759;
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .bg-art,
+  .dots.active,
+  #empty-icon.pulse {
+    animation: none;
+  }
+}
+
+/* Manual scroll: show every line clearly while the user is browsing. */
+body.scrolling .line {
+  filter: none;
+  opacity: 0.55;
+}
+body.scrolling .line.active {
+  opacity: 1;
+}
+
+/* Offset measured automatically from the audio. */
+#offset.auto {
+  color: #b9f6ca;
+}
+
+/* ------------------------------ big screen ------------------------------- */
+/* Full screen or a very large window: lyrics fill the screen, the header turns into a
+   now-playing card, and everything is sized from the viewport so it reads from a sofa. */
+
+#np {
+  display: none;
+}
+
+body.idle {
+  cursor: none;
+}
+
+body.big {
+  --lyric-size: calc(clamp(44px, min(4.6vw, 7.2vh), 132px) * var(--text-scale));
+  --anchor: 0.4;
+}
+
+body.big #stage {
+  padding: 0 8vw 0 9vw;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 74%, transparent 96%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 74%, transparent 96%);
+}
+
+body.big #lines {
+  max-width: 20em;
+}
+
+/* Header keeps only its controls; title and art move to the card. */
+body.big #top .meta,
+body.big #top #art {
+  visibility: hidden;
+}
+
+body.big.fullscreen #top {
+  padding-left: 14px;
+}
+
+body.big #plain,
+body.big #empty {
+  font-size: 1.6vw;
+}
+
+/* Unsynced lyrics end above the now-playing card (its height is measured into --np-space)
+   and line up with it, with the "Sync" button next to the text rather than at the far edge. */
+body.big #plain {
+  bottom: var(--np-space, 30vh);
+  padding: 10px 9vw 40px;
+}
+
+body.big #plain > * {
+  max-width: min(1100px, 100%);
+}
+
+/* Cover view: the card is the left half, the lyrics take the right. */
+body.big.cover #plain {
+  bottom: 40px;
+  padding: 10px 5vw 60px 50vw;
+}
+
+body.big #np {
+  position: fixed;
+  left: 9vw;
+  bottom: 6vh;
+  display: flex;
+  align-items: center;
+  gap: 1.6vw;
+  max-width: 44vw;
+  z-index: 4;
+  pointer-events: none;
+}
+
+#np-art {
+  width: clamp(72px, 7vw, 150px);
+  height: clamp(72px, 7vw, 150px);
+  border-radius: 0.6vw;
+  object-fit: cover;
+  box-shadow: 0 1vw 3vw rgba(0, 0, 0, 0.45);
+  flex: none;
+}
+
+.np-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+#np-title {
+  font-size: clamp(18px, 1.7vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#np-artist {
+  font-size: clamp(14px, 1.15vw, 26px);
+  opacity: 0.7;
+  margin-top: 0.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#np-bar {
+  margin-top: clamp(10px, 1vw, 20px);
+  height: clamp(3px, 0.28vw, 6px);
+  width: clamp(200px, 22vw, 520px);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+#np-fill {
+  display: block;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.25s linear;
+}
+
+#np-time {
+  display: flex;
+  justify-content: space-between;
+  width: clamp(200px, 22vw, 520px);
+  margin-top: 0.5em;
+  font-size: clamp(11px, 0.8vw, 18px);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+}
+
+/* The card dims when the room is just listening, so lyrics stay the focus. */
+body.big.idle #np {
+  opacity: 0.55;
+  transition: opacity 1.2s ease;
+}
+
+body.big #foot {
+  padding: 0 3vw 2vh;
+}
+
+/* -------------------------- no-lyrics & editor --------------------------- */
+
+.plain-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+button.chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-weight: 600;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+button.chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+button.chip.primary {
+  background: #fff;
+  color: #111;
+}
+
+button.chip:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Big screen with no lyrics: artwork and title centre stage, the note sits quietly below. */
+body.big.ambient #np {
+  left: 50%;
+  top: 46%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  text-align: center;
+  max-width: 60vw;
+  gap: 3vh;
+}
+
+body.big.ambient #np-art {
+  width: min(42vh, 30vw);
+  height: min(42vh, 30vw);
+  border-radius: 1vw;
+}
+
+body.big.ambient #np-title {
+  font-size: clamp(28px, 2.8vw, 64px);
+}
+
+body.big.ambient #np-artist {
+  font-size: clamp(18px, 1.5vw, 34px);
+}
+
+body.big.ambient #np-bar,
+body.big.ambient #np-time {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body.big.ambient.idle #np {
+  opacity: 1;
+}
+
+body.big.ambient #empty {
+  inset: auto 0 5vh;
+  gap: 4px;
+}
+
+body.big.ambient #empty-icon {
+  display: none;
+}
+
+body.big.ambient #empty-title {
+  font-size: clamp(14px, 1vw, 22px);
+  opacity: 0.75;
+}
+
+body.big.ambient #empty-body {
+  display: none;
+}
+
+body.big.ambient.idle #empty {
+  opacity: 0;
+}
+
+#editor {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+#editor[hidden] {
+  display: none;
+}
+
+.ed-card {
+  width: min(680px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 18px;
+  /* Near-solid, so the lyrics and screens behind never compete with the card's text. */
+  background: rgba(22, 22, 30, 0.97);
+  backdrop-filter: blur(30px) saturate(1.3);
+  -webkit-backdrop-filter: blur(30px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  user-select: text;
+}
+
+.ed-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ed-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.ed-song {
+  font-size: 17px;
+  font-weight: 650;
+  margin-top: 4px;
+}
+
+.ed-help {
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.ed-keys {
+  margin-top: 12px;
+}
+
+kbd {
+  font: inherit;
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+#ed-text {
+  margin-top: 12px;
+  width: 100%;
+  height: min(46vh, 420px);
+  resize: vertical;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  font: 15px/1.5 var(--font);
+  outline: none;
+}
+
+#ed-text:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+#ed-lines {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ed-line {
+  font-size: 20px;
+  font-weight: 650;
+  opacity: 0.4;
+  padding: 4px 0;
+}
+
+.ed-line.done {
+  opacity: 0.25;
+  font-size: 16px;
+}
+
+.ed-line.current {
+  opacity: 1;
+  font-size: 28px;
+}
+
+.ed-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ----------------------------- editor: review ----------------------------- */
+
+button.chip.small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.ed-tapstage {
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ed-review {
+  margin-top: 12px;
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ed-row {
+  display: grid;
+  grid-template-columns: 76px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.ed-row.playing {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ed-row.missing .ed-time {
+  color: #ffb4a8;
+}
+
+.ed-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.ed-row .ed-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ed-tools {
+  display: flex;
+  gap: 4px;
+}
+
+#user-sync {
+  display: flex;
+  gap: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+button.link {
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.85;
+}
+
+button.link:hover {
+  opacity: 1;
+}
+
+/* ------------------------------- transport ------------------------------- */
+
+#np-ctrl {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 0.6vw, 14px);
+  margin-top: clamp(10px, 1.1vw, 22px);
+  transition: opacity 0.6s ease;
+}
+
+#np-ctrl button {
+  pointer-events: auto;
+  width: clamp(34px, 2.6vw, 56px);
+  height: clamp(34px, 2.6vw, 56px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  opacity: 0.8;
+  transition: background 0.2s, opacity 0.2s, transform 0.15s;
+}
+
+#np-ctrl button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  opacity: 1;
+}
+
+#np-ctrl button:active {
+  transform: scale(0.9);
+}
+
+#np-ctrl button.main {
+  width: clamp(44px, 3.4vw, 72px);
+  height: clamp(44px, 3.4vw, 72px);
+  background: rgba(255, 255, 255, 0.16);
+  opacity: 1;
+}
+
+#np-ctrl svg {
+  width: 55%;
+  height: 55%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#np-ctrl svg .fill {
+  fill: currentColor;
+}
+
+#np-ctrl svg text {
+  font: 700 7.5px var(--font);
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Window layout: previous / play / next, bottom centre, with the rest of the chrome. */
+#ctrl {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  z-index: 6;
+  transition: opacity 0.6s ease;
+}
+
+body.has-track:not(.big):not(.karaoke) #ctrl {
+  display: flex;
+}
+
+body.idle #ctrl {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#ctrl button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  opacity: 0.8;
+  transition: background 0.2s, opacity 0.2s, transform 0.15s;
+}
+
+#ctrl button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  opacity: 1;
+}
+
+#ctrl button:active {
+  transform: scale(0.9);
+}
+
+#ctrl button.main {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.16);
+  opacity: 1;
+}
+
+#ctrl svg {
+  width: 56%;
+  height: 56%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#ctrl svg .fill {
+  fill: currentColor;
+}
+
+.play-btn .i-play,
+.play-btn.paused .i-pause {
+  display: none;
+}
+
+.play-btn.paused .i-play {
+  display: block;
+}
+
+#np-art,
+#np-bar {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Taller invisible hit area around the thin bar (padding), bar drawn in the content box. */
+#np-bar {
+  box-sizing: content-box;
+  padding: 6px 0;
+  margin-top: clamp(4px, 0.7vw, 14px);
+  background-clip: content-box;
+}
+
+/* The lyrics are the show: controls only appear while you're moving the mouse. */
+body.idle #np-ctrl {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.idle #np-ctrl button {
+  pointer-events: none;
+}
+
+/* ------------------------------- cover mode ------------------------------ */
+
+#np-art,
+#np,
+#stage,
+#lines {
+  transition-property: width, height, left, top, bottom, transform, padding, font-size, border-radius;
+  transition-duration: 0.6s;
+  transition-timing-function: var(--ease-out);
+}
+
+body.big.cover {
+  --lyric-size: calc(clamp(32px, min(3vw, 5.2vh), 92px) * var(--text-scale));
+  --anchor: 0.42;
+}
+
+body.big.cover #np {
+  left: 7vw;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.4vh;
+  max-width: 38vw;
+}
+
+body.big.cover #np-art {
+  width: min(58vh, 36vw);
+  height: min(58vh, 36vw);
+  border-radius: 1.2vw;
+  box-shadow: 0 2.5vw 6vw rgba(0, 0, 0, 0.55);
+}
+
+body.big.cover #np-title {
+  font-size: clamp(22px, 2vw, 46px);
+}
+
+body.big.cover #np-artist {
+  font-size: clamp(15px, 1.3vw, 30px);
+}
+
+body.big.cover #np-bar,
+body.big.cover #np-time {
+  width: min(58vh, 36vw);
+}
+
+body.big.cover.idle #np {
+  opacity: 1;
+}
+
+body.big.cover #stage {
+  padding: 0 5vw 0 50vw;
+}
+
+/* ---------------------------- outdated notice ---------------------------- */
+
+#notice {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(760px, calc(100vw - 32px));
+  padding: 10px 10px 10px 18px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: rgba(20, 20, 28, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+#notice[hidden] {
+  display: none;
+}
+
+#notice .chip {
+  white-space: nowrap;
+  flex: none;
+}
+
+/* ---------------------------- backing vocals ----------------------------- */
+/* "(oh, oh)" and other parenthesised parts: smaller and softer, still highlighted in time. */
+
+.w.bgv {
+  font-size: 0.7em;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.line.bgline {
+  font-size: calc(var(--lyric-size) * 0.72);
+  font-weight: 600;
+}
+
+.line.bgline.active {
+  opacity: 0.85;
+}
+
+/* Inside a whole-line echo the words are already small. */
+.line.bgline .w.bgv {
+  font-size: 1em;
+}
+
+/* ---------------------------- song transitions ---------------------------- */
+/* Registered colours can be transitioned, so the backdrop blends into the next song. */
+@property --c1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5a4a8a;
+}
+@property --c2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2a6a7a;
+}
+@property --c3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8a3a5a;
+}
+
+:root {
+  transition: --c1 1.6s ease, --c2 1.6s ease, --c3 1.6s ease;
+}
+
+#art,
+#np-art {
+  transition-property: opacity, width, height, border-radius, box-shadow;
+  transition-duration: 0.45s, 0.6s, 0.6s, 0.6s, 0.6s;
+}
+
+#art.swapping,
+#np-art.swapping {
+  opacity: 0.35;
+}
+
+#stage.switching #lines {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+#lines.entering {
+  animation: lines-in 0.8s var(--ease-out) both;
+}
+
+@keyframes lines-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+body.reduced #lines.entering {
+  animation: lines-fade 0.6s ease both;
+}
+
+@keyframes lines-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* --------------------------------- setup --------------------------------- */
+
+#setup {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+#setup[hidden] {
+  display: none;
+}
+
+.setup-card {
+  width: min(560px, 100%);
+}
+
+#setup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setup-row {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 12px;
+  padding: 10px 6px;
+  border-radius: 10px;
+}
+
+.setup-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.setup-row.ok .setup-mark {
+  background: #34c759;
+  border-color: #34c759;
+  color: #fff;
+}
+
+.setup-row.ok .setup-title {
+  opacity: 0.7;
+}
+
+.setup-title {
+  font-weight: 650;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.setup-detail {
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+.setup-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* ---------------------------- lyrics font ---------------------------- */
+
+body[data-font='rounded'] {
+  --lyric-font: ui-rounded, 'SF Pro Rounded', var(--font);
+}
+
+body[data-font='serif'] {
+  --lyric-font: ui-serif, 'New York', 'Iowan Old Style', Georgia, serif;
+}
+
+body[data-font='serif'] .line {
+  letter-spacing: -0.01em;
+}
+
+/* ---------------- second line: romanization / translation ---------------- */
+
+.line .sub {
+  display: block;
+  margin-top: 0.22em;
+  font-family: var(--font);
+  font-size: 0.48em;
+  font-weight: 550;
+  letter-spacing: 0;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.62);
+  -webkit-text-fill-color: currentColor;
+  transition: color 0.4s ease;
+}
+
+.line.active .sub {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Romanization fills in with the words above it. */
+.line.active .sub.wipe {
+  --p: 0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.96) calc(var(--p) * (100% + 0.6em) - 0.6em),
+    rgba(255, 255, 255, 0.5) calc(var(--p) * (100% + 0.6em))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  width: fit-content;
+}
+
+.line.bgline .sub {
+  font-size: 0.6em;
+}
+
+#plain-text .sub {
+  font-family: var(--font);
+  font-size: 0.66em;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 0.45em;
+  opacity: 0.66;
+}
+
+/* -------------------------------- toast -------------------------------- */
+
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 52px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: rgba(20, 20, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.4s var(--ease-out);
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+#toast[hidden],
+#toast-action[hidden] {
+  display: none;
+}
+
+#toast .chip {
+  flex: none;
+  white-space: nowrap;
+}
+
+.setup-card .ed-actions {
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ------------------------------ lyrics picker ------------------------------ */
+
+#picker {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+#picker[hidden] {
+  display: none;
+}
+
+.picker-card {
+  max-height: min(720px, calc(100vh - 48px));
+  background: rgba(24, 24, 32, 0.9);
+}
+
+#pk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  min-height: 0;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+.pk-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 14px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pk-row:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pk-row.current {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pk-row:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.pk-title {
+  font-size: 14px;
+  font-weight: 650;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-meta {
+  grid-column: 1;
+  font-size: 12px;
+  opacity: 0.65;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-preview {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-tags {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 11.5px;
+}
+
+.pk-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.pk-tag.good {
+  background: rgba(120, 230, 160, 0.2);
+}
+
+.pk-tag.warn {
+  background: rgba(255, 190, 90, 0.2);
+}
+
+.pk-dur {
+  opacity: 0.65;
+  white-space: nowrap;
+}
+
+.pk-dur.off {
+  color: #ffc46b;
+  opacity: 0.9;
+}
+
+#pk-auto[hidden] {
+  display: none;
+}
+
+#source {
+  cursor: pointer;
+}
+
+#source:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ------------------------------- settings ------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 22;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.settings-card,
+.keys-card {
+  max-height: min(760px, calc(100vh - 48px));
+  background: rgba(24, 24, 32, 0.92);
+  user-select: none;
+}
+
+#st-body,
+#keys-list {
+  overflow-y: auto;
+  min-height: 0;
+  margin: 0 -22px -6px;
+  padding: 0 22px 6px;
+}
+
+.st-section + .st-section,
+.keys-group + .keys-group {
+  margin-top: 20px;
+}
+
+.st-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 6px;
+}
+
+.st-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.st-row > div:first-child {
+  min-width: 0;
+}
+
+.st-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.st-help {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+.st-note {
+  font-size: 12px;
+  opacity: 0.6;
+  margin: 10px 0 0;
+}
+
+.st-switch {
+  flex: none;
+  position: relative;
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  border: 0;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.2s ease;
+}
+
+.st-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s var(--ease-out);
+}
+
+.st-switch.on {
+  background: #34c759;
+}
+
+.st-switch.on::after {
+  transform: translateX(16px);
+}
+
+.st-switch:disabled {
+  opacity: 0.4;
+}
+
+.st-seg {
+  flex: none;
+  display: flex;
+  padding: 2px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.st-seg button {
+  border: 0;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  opacity: 0.75;
+}
+
+.st-seg button.on {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+
+.st-step {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-step button {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.st-step button:hover,
+.st-seg button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.st-step span {
+  min-width: 56px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-select {
+  flex: none;
+  max-width: 220px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+}
+
+.st-select option {
+  color: #000;
+}
+
+.st-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+/* ---------------------------- keyboard shortcuts ---------------------------- */
+
+.keys-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13.5px;
+}
+
+.keys-key {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.keys-key kbd {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.setup-heading {
+  margin: 14px 0 2px;
+}
+
+.setup-row.optional .setup-mark {
+  border-style: dashed;
+  opacity: 0.45;
+}
+
+.setup-row.optional .setup-title {
+  opacity: 0.7;
+}
+
+.setup-card {
+  background: rgba(24, 24, 32, 0.92);
+}
+
+/* Footer: shortcut guide button next to the connection dot. */
+.foot-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.foot-key {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.foot-key:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Window minimized or hidden: freeze the background drift and every other animation. */
+body.asleep *,
+body.asleep *::before,
+body.asleep *::after {
+  animation-play-state: paused !important;
+}
+
+/* --------------------------------- duets --------------------------------- */
+/* When the lyrics mark singers: the second singer's lines sit on the right, lines sung
+   together in the middle, like a conversation. */
+
+#lines.duet .line.v2 {
+  text-align: right;
+  transform-origin: right center;
+}
+
+#lines.duet .line.v3 {
+  text-align: center;
+  transform-origin: center;
+}
+
+/* -------------------------------- karaoke -------------------------------- */
+/* K: full screen, lyrics only, as large as the screen allows, centred for a room to read. */
+
+body.karaoke #top,
+body.karaoke #np,
+body.karaoke #foot,
+body.karaoke #notice {
+  display: none !important;
+}
+
+body.karaoke {
+  --lyric-size: calc(clamp(44px, min(5.4vw, 9.4vh), 180px) * var(--text-scale));
+  --anchor: 0.42;
+}
+
+body.karaoke #stage,
+body.big.karaoke #stage,
+body.big.cover.karaoke #stage {
+  padding: 0 6vw;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 80%, transparent 98%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 80%, transparent 98%);
+}
+
+body.karaoke #lines {
+  max-width: none;
+  margin: 0 auto;
+  text-align: center;
+}
+
+body.karaoke .line {
+  transform-origin: center;
+  /* Only the lines around the one being sung, so the room reads the right one. */
+  opacity: clamp(0, calc(0.5 - var(--d) * 0.16), 0.5);
+}
+
+body.karaoke .line.active {
+  opacity: 1;
+}
+
+body.karaoke #lines.duet .line.v1 {
+  text-align: left;
+  transform-origin: left center;
+}
+
+/* Song title for a few seconds when a song starts. */
+#karaoke-title {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 5vh;
+  z-index: 5;
+  text-align: center;
+  font-size: clamp(16px, 1.6vw, 34px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+body.karaoke #karaoke-title.show {
+  opacity: 1;
+}
+
+/* ------------------------------- what's new ------------------------------- */
+
+.whatsnew-card {
+  width: min(520px, calc(100vw - 32px));
+}
+
+#wn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  margin: 6px 0 4px;
+}
+
+.wn-heading {
+  margin-top: 12px;
+}
+
+.wn-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wn-row:first-child {
+  border-top: 0;
+}
+
+.wn-title {
+  font-weight: 650;
+  font-size: 14px;
+}
+
+.wn-body {
+  font-size: 12.5px;
+  opacity: 0.7;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.wn-row .chip {
+  flex: none;
+}
+
+/* -------------------------------- Windows -------------------------------- */
+/* Segoe UI instead of SF Pro; the top bar clears Windows' min/max/close buttons on the
+   right instead of the Mac's traffic lights on the left. */
+
+:root[data-platform='win32'] {
+  --font: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+}
+
+:root[data-platform='win32'] #top {
+  padding: 0 148px 0 16px;
+  height: 40px;
+}
+
+:root[data-platform='win32'] body.big.fullscreen #top {
+  padding-right: 16px;
+}

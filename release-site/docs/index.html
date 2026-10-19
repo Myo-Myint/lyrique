@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lyrique — synced lyrics for Spotify, Apple Music and YouTube Music on your Mac</title>
+    <meta name="description" content="Free Mac app that shows beautiful, word-by-word synced lyrics for whatever you play in Spotify, Apple Music or YouTube Music — in a window, full screen on a big display, a floating mini bar or the menu bar." />
+    <meta property="og:title" content="Lyrique — synced lyrics for your Mac" />
+    <meta property="og:description" content="Word-by-word lyrics for Spotify, Apple Music and YouTube Music on your Mac. Free." />
+    <meta property="og:image" content="https://lyrique.app/poster.jpg" />
+    <link rel="icon" href="icon.png" />
+    <style>
+      :root {
+        --bg: #0b0b10;
+        --fg: #f5f5f7;
+        --dim: rgba(245, 245, 247, 0.66);
+        --faint: rgba(245, 245, 247, 0.12);
+        --c1: #c2552a;
+        --c2: #2c6a9a;
+        --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(70% 50% at 15% 0%, color-mix(in oklab, var(--c1) 55%, transparent), transparent 70%),
+          radial-gradient(60% 50% at 90% 10%, color-mix(in oklab, var(--c2) 55%, transparent), transparent 70%),
+          var(--bg);
+        background-repeat: no-repeat;
+        line-height: 1.55;
+      }
+      a {
+        color: inherit;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 0;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 18px;
+        text-decoration: none;
+      }
+      .brand img {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+      }
+      nav a {
+        color: var(--dim);
+        text-decoration: none;
+        font-size: 14px;
+        margin-left: 20px;
+      }
+      nav a:hover {
+        color: var(--fg);
+      }
+      .hero {
+        text-align: center;
+        padding: 56px 0 36px;
+      }
+      h1 {
+        font-size: clamp(40px, 7vw, 76px);
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        margin: 0 0 18px;
+      }
+      h1 .sung {
+        background: linear-gradient(90deg, #fff 55%, rgba(255, 255, 255, 0.38) 75%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .lede {
+        font-size: clamp(17px, 2.2vw, 21px);
+        color: var(--dim);
+        max-width: 640px;
+        margin: 0 auto 32px;
+      }
+      .cta {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 22px;
+        border-radius: 999px;
+        font-weight: 650;
+        font-size: 15px;
+        text-decoration: none;
+        border: 1px solid var(--faint);
+        background: rgba(255, 255, 255, 0.06);
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
+      }
+      .btn.primary {
+        background: #fff;
+        color: #0b0b10;
+        border-color: #fff;
+      }
+      .btn.primary:hover {
+        background: #e9e9ee;
+      }
+      .fine {
+        color: var(--dim);
+        font-size: 13px;
+        margin-top: 14px;
+      }
+      .video {
+        margin: 40px auto 0;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid var(--faint);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        aspect-ratio: 16 / 10;
+        background: #000;
+      }
+      .video video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      section {
+        padding: 72px 0 0;
+      }
+      h2 {
+        font-size: clamp(28px, 4vw, 40px);
+        letter-spacing: -0.025em;
+        line-height: 1.12;
+        margin: 0 0 12px;
+      }
+      .sub {
+        color: var(--dim);
+        font-size: 17px;
+        max-width: 620px;
+        margin: 0 0 32px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        border: 1px solid var(--faint);
+        background: rgba(255, 255, 255, 0.035);
+        border-radius: 16px;
+        padding: 22px;
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+        letter-spacing: -0.01em;
+      }
+      .card p {
+        margin: 0;
+        color: var(--dim);
+        font-size: 15px;
+      }
+      kbd {
+        font-family: var(--font);
+        font-size: 12px;
+        padding: 1px 6px;
+        border-radius: 5px;
+        border: 1px solid var(--faint);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 36px;
+        align-items: center;
+      }
+      .shots {
+        display: flex;
+        gap: 14px;
+      }
+      .shots img {
+        width: 50%;
+        min-width: 0;
+        border-radius: 14px;
+        border: 1px solid var(--faint);
+      }
+      .mini img {
+        width: 100%;
+        max-width: 760px;
+        display: block;
+        filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.5));
+      }
+      .wide img {
+        width: 100%;
+        display: block;
+        border-radius: 16px;
+        border: 1px solid var(--faint);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      }
+      .share img {
+        width: 100%;
+        max-width: 360px;
+        display: block;
+        margin-left: auto;
+        border-radius: 14px;
+        border: 1px solid var(--faint);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      }
+      ol.steps {
+        counter-reset: s;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+      ol.steps li {
+        counter-increment: s;
+        border: 1px solid var(--faint);
+        border-radius: 16px;
+        padding: 22px;
+        background: rgba(255, 255, 255, 0.035);
+        color: var(--dim);
+        font-size: 15px;
+      }
+      ol.steps li::before {
+        content: counter(s);
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #fff;
+        color: #0b0b10;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      ol.steps b {
+        color: var(--fg);
+      }
+      footer {
+        margin-top: 88px;
+        padding: 28px 0 48px;
+        border-top: 1px solid var(--faint);
+        color: var(--dim);
+        font-size: 14px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      footer a {
+        color: var(--dim);
+      }
+      @media (max-width: 760px) {
+        .split {
+          grid-template-columns: 1fr;
+        }
+        .share img {
+          margin: 0 auto;
+        }
+        nav a:not(.btn) {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <a class="brand" href="./"><img src="icon.png" alt="" />Lyrique</a>
+        <nav>
+          <a href="#features">Features</a>
+          <a href="#install">Install</a>
+          <a href="https://github.com/Myo-Myint/lyrique-releases/issues/new/choose">Report a bug</a>
+        </nav>
+      </header>
+
+      <div class="hero">
+        <h1>Lyrics that <span class="sung">sing along</span></h1>
+        <p class="lede">
+          Lyrique is a free app for Mac, now in beta on Windows, that shows time-synced lyrics for whatever you play in Spotify, Apple Music or YouTube Music, word by word, in a
+          window, a floating mini bar, the menu bar, or full screen on your biggest display.
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/Myo-Myint/lyrique-releases/releases/latest">Download for Mac</a>
+          <a class="btn" href="https://github.com/Myo-Myint/lyrique-releases/releases/tag/v0.5.1-beta.1">Windows (beta)</a>
+          <a class="btn" href="#install">How to install</a>
+        </div>
+        <p class="fine">Free · macOS on Apple Silicon and Intel · Windows 10 and 11 in beta · Spotify, Apple Music and YouTube Music</p>
+        <div class="video">
+          <video src="demo.mp4" poster="poster.jpg" autoplay muted loop playsinline aria-label="Lyrique highlighting lyrics word by word, then switching to cover view"></video>
+        </div>
+      </div>
+
+      <section id="features">
+        <h2>Made to be watched</h2>
+        <p class="sub">The lyrics are the show. Everything else fades away until you move the mouse.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>Word by word</h3>
+            <p>Each word fills in as it's sung, from word-timed lyrics where they exist and carefully estimated timing where they don't.</p>
+          </div>
+          <div class="card">
+            <h3>Lines up by itself</h3>
+            <p>Lyrique listens to when the singing starts and nudges lyrics into place. Headphones like AirPods get their own delay setting.</p>
+          </div>
+          <div class="card">
+            <h3>Spotify and Apple Music, no setup</h3>
+            <p>Lyrique follows both apps on your Mac by itself. YouTube Music works through a small browser extension.</p>
+          </div>
+          <div class="card">
+            <h3>Big-screen mode</h3>
+            <p>Send it to any display and press <kbd>F</kbd>. Click the artwork for cover view. Play, pause and skip from Lyrique.</p>
+          </div>
+          <div class="card">
+            <h3>Lyrics from everywhere</h3>
+            <p>YouTube Music's own lyrics, LRCLIB and QQ Music. Wrong version? Pick another in a click. Still nothing? Sync it yourself by tapping along.</p>
+          </div>
+          <div class="card">
+            <h3>Speaks your language</h3>
+            <p>English, Español, Français, Português, မြန်မာ, ไทย, 日本語, 한국어, 简体中文 and 繁體中文, following your Mac. Change it any time in Settings.</p>
+          </div>
+          <div class="card">
+            <h3>Easy on the eyes</h3>
+            <p>Text size and fonts, a calmer view with Reduce Motion, and a short tour of what's new after every update.</p>
+          </div>
+          <div class="card">
+            <h3>Free, no strings</h3>
+            <p>No account, no ads, no tracking. Your settings and lyrics stay on your Mac.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="wide" id="karaoke">
+        <h2>Karaoke for the whole room</h2>
+        <p class="sub">Press <kbd>K</kbd> and Lyrique goes full screen with nothing but the lyrics, big and centred, so everyone can sing from the sofa. Plug in a TV and it's a party.</p>
+        <img src="karaoke.jpg" alt="Karaoke mode: large centred lyrics filling the screen" loading="lazy" />
+      </section>
+
+      <section>
+        <div class="split share">
+          <div>
+            <h2>Duets, side by side</h2>
+            <p class="sub">When the lyrics say who sings what, the second voice takes the right side and the lines you sing together sit in the middle, like a conversation.</p>
+          </div>
+          <img src="duet.jpg" alt="A duet: one singer's lines on the left, the other's on the right" loading="lazy" />
+        </div>
+      </section>
+
+      <section>
+        <div class="split">
+          <div>
+            <h2>Sing along in any language</h2>
+            <p class="sub">
+              Press <kbd>T</kbd> for a second line under each lyric: romanization for Korean, Japanese, Chinese and other scripts, or a translation into your
+              language.
+            </p>
+          </div>
+          <div class="shots">
+            <img src="romanized.jpg" alt="Korean lyrics with romanization under each line" loading="lazy" />
+            <img src="translated.jpg" alt="Korean lyrics with English translation under each line" loading="lazy" />
+          </div>
+        </div>
+      </section>
+
+      <section class="mini">
+        <h2>A mini bar that floats over everything</h2>
+        <p class="sub">
+          Working on something else? Press <kbd>M</kbd> or <kbd>⌥⌘L</kbd> for a slim strip with just the current line, above every window and Space. Or
+          put the line in the menu bar.
+        </p>
+        <img src="mini.png" alt="Lyrique's floating mini lyrics bar" loading="lazy" />
+      </section>
+
+      <section>
+        <div class="split share">
+          <div>
+            <h2>Share the line that got you</h2>
+            <p class="sub">Right-click any line, or press <kbd>S</kbd>, for a lyric card with the song's artwork, ready to paste into a message or a story.</p>
+          </div>
+          <img src="share.jpg" alt="A shared lyric card" loading="lazy" />
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>Install in a minute</h2>
+        <p class="sub">Spotify and Apple Music work straight away. YouTube Music needs a small browser extension that tells Lyrique what's playing.</p>
+        <ol class="steps">
+          <li>
+            <b>Download Lyrique</b> from the <a href="https://github.com/Myo-Myint/lyrique-releases/releases/latest">latest release</a>: the
+            <b>arm64</b> file for Apple Silicon Macs (M1 and later), <b>x64</b> for Intel Macs. Drag it into Applications.
+          </li>
+          <li>
+            <b>First launch only:</b> this early version isn't notarized by Apple yet. Open it once, then go to System Settings → Privacy &amp; Security and
+            click <b>Open Anyway</b>.
+          </li>
+          <li>
+            <b>Play a song</b> in Spotify or Apple Music, and click <b>Allow</b> when macOS asks to let Lyrique see it. The lyrics appear right away.
+          </li>
+          <li>
+            <b>For YouTube Music,</b> add the Lyrique Bridge extension. The Chrome Web Store listing is in review; until then Lyrique's Setup Guide walks you
+            through loading it. It works in Chrome, Edge, Brave, Arc and other Chromium browsers.
+          </li>
+          <li>
+            <b>On Windows (beta):</b> download <b>x64</b> (most PCs) or <b>arm64</b> (Windows on Arm) from the
+            <a href="https://github.com/Myo-Myint/lyrique-releases/releases/tag/v0.5.1-beta.1">Windows beta release</a> and run it. If SmartScreen
+            says "Windows protected your PC", click <b>More info → Run anyway</b>. Spotify and Apple Music work with nothing to set up.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Private by design</h2>
+        <p class="sub">
+          No accounts, analytics or ads. The extension talks only to the app on your own Mac. Song titles go to lyrics services to find lyrics, and lyric
+          text goes to Google Translate only while romanization or translation is switched on.
+          <a href="https://github.com/Myo-Myint/lyrique-releases/blob/main/PRIVACY.md">Privacy policy</a>.
+        </p>
+      </section>
+
+      <footer>
+        <span>Lyrique is free. Not affiliated with YouTube, Google, Spotify or Apple.</span>
+        <span>
+          <a href="https://github.com/Myo-Myint/lyrique-releases/releases">Releases</a> ·
+          <a href="https://github.com/Myo-Myint/lyrique-releases/issues/new/choose">Report a bug</a> ·
+          <a href="https://github.com/Myo-Myint/lyrique-releases/blob/main/PRIVACY.md">Privacy</a>
+        </span>
+      </footer>
+    </div>
+  </body>
+</html>

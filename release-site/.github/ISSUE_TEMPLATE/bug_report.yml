@@ -1,0 +1,38 @@
+name: Bug report
+description: Something isn't working — lyrics missing, out of sync, the app or extension misbehaving.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you see instead?
+      placeholder: "Lyrics for this song show up about 2 seconds early…"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The song (title and artist), and what you clicked or pressed.
+      placeholder: |
+        1. Play "…" by … on YouTube Music
+        2. …
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Click Lyrique's menu-bar icon → **Copy Diagnostics**, then paste here. It includes the current song's title, so remove it if you'd rather not share it.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options: [Chrome, Edge, Brave, Arc, Opera, Vivaldi, Other]
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or screen recording
+      description: Optional, but very helpful for timing and layout problems. Drag files here.

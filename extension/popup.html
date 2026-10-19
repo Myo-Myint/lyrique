@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font: 13px/1.4 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        margin: 0;
+        padding: 14px 16px;
+        width: 260px;
+        color: #111;
+        background: #fff;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { color: #eee; background: #1c1c1e; }
+        input { background: #2c2c2e; color: #eee; border-color: #444; }
+      }
+      h1 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: #8e8e93; display: inline-block; }
+      .dot.on { background: #34c759; }
+      .track { opacity: 0.75; margin: 6px 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      label { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      input { width: 80px; padding: 4px 6px; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+      p.hint { opacity: 0.6; font-size: 12px; margin: 10px 0 0; }
+    </style>
+  </head>
+  <body>
+    <h1><span class="dot" id="dot"></span><span id="status">Checking…</span></h1>
+    <div class="track" id="track">—</div>
+    <label>App port <input id="port" type="number" min="1024" max="65535" /></label>
+    <p class="hint">Open Lyrique on your Mac and play something on music.youtube.com.</p>
+    <script src="popup.js"></script>
+  </body>
+</html>

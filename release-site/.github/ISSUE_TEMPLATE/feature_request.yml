@@ -1,0 +1,16 @@
+name: Idea or feature request
+description: Something Lyrique could do better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: Describe what you're trying to do and how you'd like it to work.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does it matter to you?
+      description: Optional — the situation you're in when you'd use it.

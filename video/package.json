@@ -1,0 +1,23 @@
+{
+  "name": "lyrique-video",
+  "private": true,
+  "description": "The Lyrique how-to video, made with Remotion. Not part of the app build.",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "prepare-assets": "node scripts/prepare.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts HowTo out/howto.mp4 && node scripts/loudnorm.mjs out/howto.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.529",
+    "@remotion/transitions": "4.0.529",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}

@@ -1,11 +1,17 @@
+<img src="docs/icon.png" width="96" alt="Lyrique" />
+
 # Lyrique
+
+> **Lyrica is now Lyrique.** New name and icon, same app. Install Lyrique and open it: your
+> settings and synced lyrics come along. Then drag the old Lyrica app to the Trash.
 
 Beautiful, time-synced lyrics for **Spotify, Apple Music and YouTube Music** on your Mac:
 word-by-word highlighting,
 full screen on a big display, a floating mini bar, romanization and translation, and lyrics
 that line themselves up with the song.
 
-Free. For macOS on Apple Silicon (M1 and later) and Intel Macs.
+Free and [open source](https://github.com/Myo-Myint/lyrique). For macOS on Apple Silicon (M1 and later) and Intel Macs, and
+Windows 10 and 11 in beta.
 
 **Website and demo:** https://lyrique.app/
 
@@ -33,9 +39,9 @@ Free. For macOS on Apple Silicon (M1 and later) and Intel Macs.
 
 ### Windows (beta)
 
-1. **Download** from the [Windows beta release](../../releases/tag/v0.5.1-beta.1):
-   - `Lyrique-0.5.1-x64.exe` for almost every Windows PC (Intel or AMD)
-   - `Lyrique-0.5.1-arm64.exe` for Windows on Arm (Snapdragon laptops, Surface Pro X)
+1. **Download** from the [Windows beta release](../../releases/tag/v0.6.0-beta.1):
+   - `Lyrique-0.6.0-x64.exe` for almost every Windows PC (Intel or AMD)
+   - `Lyrique-0.6.0-arm64.exe` for Windows on Arm (Snapdragon laptops, Surface Pro X)
 2. Run it. It installs just for you, with no admin rights needed. The beta isn't code-signed
    yet, so if SmartScreen says "Windows protected your PC", click **More info → Run anyway**.
 3. Spotify and Apple Music are followed through Windows' own media controls, with nothing to

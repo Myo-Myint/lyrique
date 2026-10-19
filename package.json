@@ -1,7 +1,7 @@
 {
   "name": "lyrique",
   "productName": "Lyrique",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Synced, pretty lyrics for YouTube Music playing in your browser — a macOS desktop app.",
   "private": true,
   "main": "./out/main/index.js",

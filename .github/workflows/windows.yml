@@ -1,0 +1,76 @@
+# Builds the Windows installers from this repository, and (once the SignPath Foundation
+# project is set up) sends them to SignPath for code signing. Every signing request is
+# approved by hand in SignPath before anything is signed.
+#
+# To turn signing on, add in Settings → Secrets and variables → Actions:
+#   secret   SIGNPATH_API_TOKEN
+#   variable SIGNPATH_ORGANIZATION_ID
+# (project slug "lyrique", signing policy "release-signing", artifact configuration
+#  "windows-installers", as created in SignPath).
+name: Windows build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      # 7-Zip's ARM64 filter can't be read by the installer's unpacker; force BCJ (see README).
+      ELECTRON_BUILDER_7Z_FILTER: BCJ
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check
+        run: |
+          npm run typecheck
+          npm test
+
+      - name: Build installers (x64 and arm64)
+        run: |
+          npx electron-vite build
+          npx electron-builder --win nsis --x64 --arm64 --config electron-builder.yml --publish never
+
+      - name: Upload unsigned installers
+        id: unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers-unsigned
+          path: |
+            dist/Lyrique-*-x64.exe
+            dist/Lyrique-*-arm64.exe
+          if-no-files-found: error
+
+      - name: Sign with SignPath (waits for manual approval)
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: lyrique
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: windows-installers
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 86400
+          output-artifact-directory: signed
+
+      - name: Upload signed installers
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers-signed
+          path: signed/
+          if-no-files-found: error

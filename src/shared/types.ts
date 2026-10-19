@@ -126,6 +126,8 @@ export interface Settings {
   language: string
   /** Lyrique version whose "What's new" was last shown ('' = from before the card existed). */
   seenVersion: string
+  /** Ask GitHub now and then whether a newer release is out. */
+  checkUpdates: boolean
 }
 
 export type SubMode = 'off' | 'romanize' | 'translate'
@@ -159,7 +161,8 @@ export const DEFAULT_SETTINGS: Settings = {
   shortcutTipShown: false,
   reduceMotion: false,
   language: '',
-  seenVersion: ''
+  seenVersion: '',
+  checkUpdates: true
 }
 
 export interface AutoOffset {

@@ -1227,7 +1227,7 @@ app.whenReady().then(() => {
     update = u
     buildTrayMenu()
     send('update:available', u)
-  })
+  }, () => settings.get().checkUpdates)
 
   tray = new Tray(trayIcon())
   tray.setToolTip('Lyrique — synced lyrics')

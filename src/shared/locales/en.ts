@@ -163,6 +163,8 @@ const en = {
   'settings.general': 'General',
   'settings.language': 'Language',
   'settings.languageHelp': 'Menus, Settings and messages. Lyrics stay as they are.',
+  'settings.updates': 'Check for updates',
+  'settings.updatesHelp': 'Asks GitHub now and then whether a newer Lyrique is out. Nothing about you or your music is sent.',
   'settings.languageSystem': 'Same as macOS ({name})',
   'settings.login': 'Open at login',
   'settings.loginHelp': 'Keep Lyrique in the menu bar, ready when music plays.',

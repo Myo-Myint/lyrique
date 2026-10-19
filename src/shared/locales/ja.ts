@@ -157,6 +157,8 @@ const catalog: Catalog = {
   'settings.general': '一般',
   'settings.language': '言語',
   'settings.languageHelp': 'メニュー、設定、メッセージの言語です。歌詞はそのまま表示されます。',
+  'settings.updates': 'アップデートを確認',
+  'settings.updatesHelp': '新しい Lyrique があるか、ときどき GitHub に確認します。あなたや音楽についての情報は送信されません。',
   'settings.languageSystem': 'macOS と同じ（{name}）',
   'settings.login': 'ログイン時に開く',
   'settings.loginHelp': 'Lyrique をメニューバーに常駐させ、音楽が流れたらすぐ使えるようにします。',

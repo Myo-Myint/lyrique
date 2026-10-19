@@ -1,8 +1,8 @@
 # Privacy Policy — Lyrique and Lyrique Bridge
 
-_Last updated: October 18, 2026_
+_Last updated: October 20, 2026_
 
-Lyrique (the Mac app) and Lyrique Bridge (the Chrome extension) are free and don't collect
+Lyrique (the app for Mac and Windows) and Lyrique Bridge (the Chrome extension) are free and don't collect
 data about you. There are no accounts, analytics, ads or trackers.
 
 ## What the extension reads
@@ -41,19 +41,24 @@ the lyrics — no account, title, or listening history.
 If you choose **Publish to LRCLIB** after syncing lyrics yourself, those lyrics and timings
 are published publicly and anonymously on lrclib.net — only after you confirm.
 
-The app also checks GitHub for new versions of Lyrique.
+Now and then the app asks GitHub whether a newer version of Lyrique is out. Nothing about you
+or your music is sent. Turn it off in Settings → *Check for updates*.
 
 **Copy Diagnostics** puts a short report (app and macOS versions, extension status, the
 current song, which lyrics sources were tried and the last few problems) on your clipboard. It
 is only shared if you paste it somewhere yourself.
 
 Lyrique keeps a small log of problems (failed lookups, player errors, crashes) in
-`~/Library/Logs/Lyrique/lyrique.log`. It stays on your Mac, with your home folder shortened to `~`.
+`~/Library/Logs/Lyrique/lyrique.log` (Windows: `%APPDATA%\Lyrique\logs`). It stays on your
+computer, with your home folder shortened to `~`.
 
-## Stored on your Mac
+On Windows, the installer shows a short version of this policy before it installs.
+
+## Stored on your computer
 
 Settings, timing offsets, cached lyrics and lyrics you synced are stored locally in
-`~/Library/Application Support/Lyrique`. Delete that folder to remove them.
+`~/Library/Application Support/Lyrique` (Windows: `%APPDATA%\Lyrique`). Delete that folder to
+remove them.
 
 ## Contact
 

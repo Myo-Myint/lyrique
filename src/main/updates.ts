@@ -38,10 +38,12 @@ async function check(): Promise<UpdateInfo | null> {
   }
 }
 
-export function watchForUpdates(onUpdate: (u: UpdateInfo) => void): void {
+/** `enabled` is read before every check, so switching it off in Settings takes effect at once. */
+export function watchForUpdates(onUpdate: (u: UpdateInfo) => void, enabled: () => boolean): void {
   if (!app.isPackaged) return
   let last = ''
   const run = async () => {
+    if (!enabled()) return
     const u = await check()
     if (u && u.version !== last) {
       last = u.version

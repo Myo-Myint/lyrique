@@ -157,6 +157,8 @@ const catalog: Catalog = {
   'settings.general': 'အထွေထွေ',
   'settings.language': 'ဘာသာစကား',
   'settings.languageHelp': 'မီနူး၊ ဆက်တင်နဲ့ စာတိုများ။ သီချင်းစာသားတွေကတော့ မူရင်းအတိုင်း ရှိပါမယ်။',
+  'settings.updates': 'အပ်ဒိတ်များ စစ်ဆေးရန်',
+  'settings.updatesHelp': 'Lyrique ဗားရှင်းအသစ် ထွက်မထွက် GitHub ကို ရံဖန်ရံခါ မေးမြန်းပါသည်။ သင့်အကြောင်း သို့မဟုတ် သင့်သီချင်းများအကြောင်း မည်သည့်အချက်အလက်မျှ မပို့ပါ။',
   'settings.languageSystem': 'macOS အတိုင်း ({name})',
   'settings.login': 'Login ဝင်တာနဲ့ ဖွင့်ရန်',
   'settings.loginHelp': 'Lyrique ကို menu bar မှာ ထားပြီး သီချင်းဖွင့်တာနဲ့ အသင့်ဖြစ်နေပါမယ်။',

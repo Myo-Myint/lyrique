@@ -44,7 +44,11 @@ win:
       arch: [x64, arm64]
   icon: build/icon-win.png
 nsis:
-  # Installs for the current user: no administrator prompt, Start menu and desktop shortcuts.
-  oneClick: true
+  # One privacy screen (SignPath requires the privacy notice during installation), then a
+  # per-user install: no administrator prompt, Start menu and desktop shortcuts.
+  oneClick: false
   perMachine: false
+  allowToChangeInstallationDirectory: false
+  license: build/installer-privacy.txt
+  include: build/installer.nsh
   shortcutName: Lyrique

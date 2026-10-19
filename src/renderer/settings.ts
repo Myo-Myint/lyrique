@@ -237,6 +237,7 @@ export function initSettings(deps: Deps) {
       inf.packaged ? t('settings.loginHelp') : t('settings.loginDev'),
       toggle(inf.openAtLogin, (v) => void window.lyrique.setOpenAtLogin(v).then(refreshInfo), !inf.packaged)
     )
+    row(general, t('settings.updates'), t('settings.updatesHelp'), toggle(st.checkUpdates, (v) => patch({ checkUpdates: v })))
     const tools = document.createElement('div')
     tools.className = 'st-tools'
     tools.append(

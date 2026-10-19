@@ -156,6 +156,8 @@ const catalog: Catalog = {
   'settings.general': 'Geral',
   'settings.language': 'Idioma',
   'settings.languageHelp': 'Menus, Ajustes e mensagens. A letra continua como está.',
+  'settings.updates': 'Procurar atualizações',
+  'settings.updatesHelp': 'Pergunta ao GitHub de vez em quando se há uma versão nova do Lyrique. Nada sobre você ou sua música é enviado.',
   'settings.languageSystem': 'Igual ao macOS ({name})',
   'settings.login': 'Abrir ao iniciar sessão',
   'settings.loginHelp': 'Mantém o Lyrique na barra de menus, pronto quando a música tocar.',

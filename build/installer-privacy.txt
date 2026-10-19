@@ -1,0 +1,20 @@
+Lyrique and your privacy
+
+Lyrique has no account, no ads and no analytics. Your settings and lyrics stay on this computer.
+
+To do its job, Lyrique connects to these services:
+
+- Lyrics: the title, artist, album and length of the song you're playing are sent to LRCLIB (lrclib.net) and QQ Music to find its lyrics. This is how Lyrique works, so it's always on while Lyrique runs.
+
+- Cover art: for YouTube Music, the song's artwork is downloaded from YouTube's image servers.
+
+- Translation and romanization: only when you turn on a second line (Settings > Second line), the lyric text is sent to Google Translate. Off by default.
+
+- Updates: now and then Lyrique asks GitHub whether a newer version is out. Nothing about you or your music is sent. Turn it off in Settings > Check for updates.
+
+- Sharing a line to LRCLIB: only when you choose to publish lyrics you synced yourself, and only after you confirm.
+
+The Lyrique Bridge browser extension (for YouTube Music) talks only to Lyrique on this computer.
+
+Full privacy policy: https://github.com/Myo-Myint/lyrique-releases/blob/main/PRIVACY.md
+Source code (GPL-3.0): https://github.com/Myo-Myint/lyrique

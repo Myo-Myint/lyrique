@@ -156,6 +156,8 @@ const catalog: Catalog = {
   'settings.general': '一般',
   'settings.language': '語言',
   'settings.languageHelp': '選單、設定和訊息。歌詞會維持原樣。',
+  'settings.updates': '檢查更新',
+  'settings.updatesHelp': '不時向 GitHub 查詢是否有新版 Lyrique。不會傳送任何關於你或你的音樂的資訊。',
   'settings.languageSystem': '與 macOS 相同（{name}）',
   'settings.login': '登入時打開',
   'settings.loginHelp': '讓 Lyrique 留在選單列中，音樂一播放就準備好。',

@@ -156,6 +156,8 @@ const catalog: Catalog = {
   'settings.general': '일반',
   'settings.language': '언어',
   'settings.languageHelp': '메뉴, 설정, 메시지. 가사는 그대로 유지돼요.',
+  'settings.updates': '업데이트 확인',
+  'settings.updatesHelp': '새 Lyrique가 나왔는지 가끔 GitHub에 확인해요. 사용자나 음악에 관한 정보는 보내지 않아요.',
   'settings.languageSystem': 'macOS와 동일({name})',
   'settings.login': '로그인 시 열기',
   'settings.loginHelp': 'Lyrique를 메뉴 막대에 두고, 음악이 재생되면 바로 준비해요.',

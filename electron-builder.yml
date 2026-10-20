@@ -56,11 +56,11 @@ nsis:
   shortcutName: Lyrique
 
 # Microsoft Store package (npm run dist:store, built on Windows: see .github/workflows/windows.yml).
-# The identity values come from Partner Center → Product identity.
+# Identity from Partner Center → Lyrique → Product identity (Store ID 9P5TB3KSW5MT).
 appx:
-  identityName: PLACEHOLDER.Lyrique
-  publisher: CN=00000000-0000-0000-0000-000000000000
-  publisherDisplayName: Lyrique
+  identityName: MatthewMyint.Lyrique
+  publisher: CN=97B0A2E2-D6B9-47E3-AC29-3D0F02BA15FA
+  publisherDisplayName: Matthew Myint
   applicationId: Lyrique
   displayName: Lyrique
   backgroundColor: transparent

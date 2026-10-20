@@ -13,6 +13,8 @@ that line themselves up with the song.
 Free and [open source](https://github.com/Myo-Myint/lyrique). For macOS on Apple Silicon (M1 and later) and Intel Macs, and
 Windows 10 and 11 in beta.
 
+[![Watch how Lyrique works](docs/video-preview.jpg)](https://lyrique.app/howto.mp4)
+
 **Website and demo:** https://lyrique.app/
 
 ## Install
@@ -33,15 +35,15 @@ Windows 10 and 11 in beta.
    After that, Lyrique opens normally.
 4. **Spotify or Apple Music:** nothing else to install. Play a song; the first time, macOS
    asks to let Lyrique see Spotify or Music — click **Allow**.
-5. **YouTube Music:** add the browser extension _Lyrique Bridge_. Its Chrome Web Store
-   listing is in review (link coming soon); until then Lyrique's Setup Guide walks you
-   through loading it. It works in **Chrome, Edge, Brave, Arc, Opera and Vivaldi**.
+5. **YouTube Music:** add the browser extension
+   [Lyrique Bridge from the Chrome Web Store](https://chromewebstore.google.com/detail/hagidkilfihkflpgpmnoifgbckldiikd).
+   It works in **Chrome, Edge, Brave, Arc, Opera and Vivaldi**.
 
 ### Windows (beta)
 
-1. **Download** from the [Windows beta release](../../releases/tag/v0.6.0-beta.1):
-   - `Lyrique-0.6.0-x64.exe` for almost every Windows PC (Intel or AMD)
-   - `Lyrique-0.6.0-arm64.exe` for Windows on Arm (Snapdragon laptops, Surface Pro X)
+1. **Download** from the [Windows beta release](../../releases/tag/v0.6.2-beta.1):
+   - `Lyrique-0.6.2-x64.exe` for almost every Windows PC (Intel or AMD)
+   - `Lyrique-0.6.2-arm64.exe` for Windows on Arm (Snapdragon laptops, Surface Pro X)
 2. Run it. After a short privacy notice it installs just for you, with no admin rights needed.
    The beta isn't code-signed yet, so if SmartScreen says "Windows protected your PC", click
    **More info → Run anyway**. Signing is being set up: see the

@@ -19,6 +19,24 @@ export function isNewer(candidate: string, current: string): boolean {
   return false
 }
 
+interface Release {
+  tag_name?: string
+  html_url?: string
+  draft?: boolean
+  prerelease?: boolean
+  assets?: { name?: string }[]
+}
+
+/**
+ * The release to compare against. On the Mac that's the latest full release. Windows builds
+ * ship as beta pre-releases next to it, so on Windows it's the newest release with an installer.
+ */
+export function pickRelease(releases: Release[], platform: string): Release | null {
+  const ok = (r: Release) => !!r.tag_name && !r.draft
+  if (platform === 'win32') return releases.find((r) => ok(r) && r.assets?.some((a) => a.name?.endsWith('.exe'))) ?? null
+  return releases.find((r) => ok(r) && !r.prerelease) ?? null
+}
+
 /**
  * Looks for a newer release on the public releases repo. Unsigned builds can't install
  * updates themselves, so this only tells you and links to the download.
@@ -26,12 +44,12 @@ export function isNewer(candidate: string, current: string): boolean {
  */
 async function check(): Promise<UpdateInfo | null> {
   try {
-    const res = await net.fetch(`https://api.github.com/repos/${RELEASES_REPO}/releases/latest`, {
+    const res = await net.fetch(`https://api.github.com/repos/${RELEASES_REPO}/releases?per_page=10`, {
       headers: { Accept: 'application/vnd.github+json', 'User-Agent': `Lyrique/${app.getVersion()}` }
     })
     if (!res.ok) return null
-    const rel = (await res.json()) as { tag_name?: string; html_url?: string; draft?: boolean; prerelease?: boolean }
-    if (!rel.tag_name || rel.draft || rel.prerelease) return null
+    const rel = pickRelease((await res.json()) as Release[], process.platform)
+    if (!rel?.tag_name) return null
     return isNewer(rel.tag_name, app.getVersion()) ? { version: rel.tag_name.replace(/^v/i, ''), url: rel.html_url ?? '' } : null
   } catch {
     return null

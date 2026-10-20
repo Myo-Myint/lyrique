@@ -127,6 +127,8 @@ export function initWhatsNew(deps: { run: (a: WhatsNewAction) => void; showShort
     if (!autoWhatsNew || s.seenVersion === version) return
     void window.lyrique.patchSettings({ seenVersion: version })
     if (!s.onboarded) return
+    // A fix-only update has no card of its own: don't open a list of old features for it.
+    if (s.seenVersion && !ITEMS.some((i) => newer(i.since, s.seenVersion) && !newer(i.since, version))) return
     window.setTimeout(() => {
       if ($('setup').hidden) open(version, s.seenVersion)
     }, 1200)

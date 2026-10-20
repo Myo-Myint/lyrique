@@ -6,6 +6,8 @@ Windows (beta). Free, with no account and no server of its own.
 **Download, screenshots and the user guide:** <https://lyrique.app/>
 (releases and bug reports live in [lyrique-releases](https://github.com/Myo-Myint/lyrique-releases)).
 
+[![Watch how Lyrique works](docs/video-preview.jpg)](https://lyrique.app/howto.mp4)
+
 ## How it works
 
 ```
@@ -45,8 +47,9 @@ npm test           # unit tests (vitest)
 npm run typecheck
 ```
 
-For YouTube Music, load `extension/` as an unpacked extension (`chrome://extensions` →
-Developer mode → Load unpacked) and play something on music.youtube.com.
+For YouTube Music, install [Lyrique Bridge from the Chrome Web Store](https://chromewebstore.google.com/detail/hagidkilfihkflpgpmnoifgbckldiikd), or load
+`extension/` as an unpacked extension (`chrome://extensions` → Developer mode → Load unpacked)
+while working on it, and play something on music.youtube.com.
 
 | Path | What's there |
 |---|---|

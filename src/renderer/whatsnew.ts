@@ -12,12 +12,15 @@ export type WhatsNewAction = 'karaoke' | 'mini' | 'menubar' | 'second' | 'share'
 interface Item {
   /** Version that introduced it. */
   since: string
-  key: 'renamed' | 'controls' | 'language' | 'karaoke' | 'duets' | 'motion' | 'settings' | 'players' | 'menubar' | 'mini' | 'second' | 'share'
+  key: 'updates' | 'renamed' | 'controls' | 'language' | 'karaoke' | 'duets' | 'motion' | 'settings' | 'players' | 'menubar' | 'mini' | 'second' | 'share'
   action?: WhatsNewAction
+  /** Reuse other strings instead of new.<key>.title / new.<key>.body. */
+  text?: [MessageKey, MessageKey]
 }
 
 /** Newest first. */
 const ITEMS: Item[] = [
+  { since: '0.6.1', key: 'updates', action: 'settings', text: ['settings.updates', 'settings.updatesHelp'] },
   { since: '0.6.0', key: 'renamed' },
   { since: '0.5.1', key: 'controls' },
   { since: '0.5.0', key: 'language', action: 'settings' },
@@ -69,10 +72,10 @@ export function initWhatsNew(deps: { run: (a: WhatsNewAction) => void; showShort
     const text = document.createElement('div')
     const title = document.createElement('div')
     title.className = 'wn-title'
-    title.textContent = t(`new.${item.key}.title` as MessageKey)
+    title.textContent = t(item.text?.[0] ?? (`new.${item.key}.title` as MessageKey))
     const body = document.createElement('div')
     body.className = 'wn-body'
-    body.textContent = t(`new.${item.key}.body` as MessageKey)
+    body.textContent = t(item.text?.[1] ?? (`new.${item.key}.body` as MessageKey))
     text.append(title, body)
     r.appendChild(text)
     if (item.action) {

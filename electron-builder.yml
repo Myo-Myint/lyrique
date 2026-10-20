@@ -51,4 +51,6 @@ nsis:
   allowToChangeInstallationDirectory: false
   license: build/installer-privacy.txt
   include: build/installer.nsh
+  installerSidebar: build/installerSidebar.bmp
+  uninstallerSidebar: build/installerSidebar.bmp
   shortcutName: Lyrique

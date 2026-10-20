@@ -1,4 +1,4 @@
-import { app, BrowserWindow, clipboard, ClipboardItem, dialog, globalShortcut, ipcMain, Menu, nativeImage, net, screen, shell, Tray, type Display } from 'electron'
+import { app, BrowserWindow, clipboard, ClipboardItem, dialog, globalShortcut, ipcMain, Menu, nativeImage, net, screen, shell, Tray, type Display, type MenuItem } from 'electron'
 import { dirname, join } from 'node:path'
 import { ExtensionBridge, type ExtensionAudio, type ExtensionLyrics } from './bridge'
 import { estimateOffset, type AudioFrame, type SyncResult } from '../shared/autosync'
@@ -18,6 +18,8 @@ import { TEXT_SCALES, type ConnectionStatus, type LyricsFont, type Lyrics, type 
 const isDev = !app.isPackaged
 const isMac = process.platform === 'darwin'
 const isWindows = process.platform === 'win32'
+/** Microsoft Store build: the Store installs updates, and Windows (not the app) controls start at login. */
+const isStore = !!process.windowsStore
 captureConsole()
 // Scripted tests run against a throwaway profile, never the real settings.
 if (process.env.LYRIQUE_USER_DATA) {
@@ -412,13 +414,17 @@ function buildTrayMenu(): void {
         checked: s.alwaysOnTop,
         click: (item) => setAlwaysOnTop(item.checked)
       },
-      {
-        label: t('tray.login'),
-        type: 'checkbox',
-        checked: openAtLogin(),
-        enabled: app.isPackaged,
-        click: (item) => setOpenAtLogin(item.checked)
-      },
+      ...(isStore
+        ? []
+        : [
+            {
+              label: t('tray.login'),
+              type: 'checkbox' as const,
+              checked: openAtLogin(),
+              enabled: app.isPackaged,
+              click: (item: MenuItem) => setOpenAtLogin(item.checked)
+            }
+          ]),
       {
         label: t('tray.lyrics'),
         submenu: [
@@ -577,6 +583,7 @@ function setupStatus() {
   return {
     webStoreUrl: WEB_STORE_URL,
     packaged: app.isPackaged,
+    store: isStore,
     openAtLogin: openAtLogin(),
     extensionConnected: bridge?.connected ?? false,
     nativePlayer: activeSource && activeSource !== 'ytm' ? SOURCE_LABEL[activeSource] : null,
@@ -596,6 +603,7 @@ function settingsInfo() {
   return {
     version: app.getVersion(),
     packaged: app.isPackaged,
+    store: isStore,
     openAtLogin: openAtLogin(),
     systemLanguage: { code: systemLanguage(), name: languageName(systemLanguage()) },
     languages: TRANSLATE_LANGUAGES.map((code) => ({ code, name: languageName(code) })),
@@ -1227,7 +1235,7 @@ app.whenReady().then(() => {
     update = u
     buildTrayMenu()
     send('update:available', u)
-  }, () => settings.get().checkUpdates)
+  }, () => !isStore && settings.get().checkUpdates)
 
   tray = new Tray(trayIcon())
   tray.setToolTip('Lyrique — synced lyrics')

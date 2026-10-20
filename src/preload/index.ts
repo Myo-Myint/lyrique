@@ -10,6 +10,8 @@ function on<T>(channel: string, cb: (payload: T) => void): Unsub {
 
 export interface SetupStatus {
   webStoreUrl: string
+  /** Installed from the Microsoft Store. */
+  store: boolean
   packaged: boolean
   openAtLogin: boolean
   extensionConnected: boolean
@@ -50,6 +52,8 @@ export interface PickerList {
 export interface SettingsInfo {
   version: string
   packaged: boolean
+  /** Installed from the Microsoft Store. */
+  store: boolean
   openAtLogin: boolean
   systemLanguage: { code: string; name: string }
   languages: Array<{ code: string; name: string }>

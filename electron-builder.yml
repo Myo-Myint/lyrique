@@ -54,3 +54,17 @@ nsis:
   installerSidebar: build/installerSidebar.bmp
   uninstallerSidebar: build/installerSidebar.bmp
   shortcutName: Lyrique
+
+# Microsoft Store package (npm run dist:store, built on Windows: see .github/workflows/windows.yml).
+# The identity values come from Partner Center → Product identity.
+appx:
+  identityName: PLACEHOLDER.Lyrique
+  publisher: CN=00000000-0000-0000-0000-000000000000
+  publisherDisplayName: Lyrique
+  applicationId: Lyrique
+  displayName: Lyrique
+  backgroundColor: transparent
+  languages: [en-GB, en-US, es, fr, pt, my, th, ja, ko, zh-Hans, zh-Hant]
+  capabilities: [internetClient]
+  # Listed in Settings → Apps → Startup, off until the user turns it on.
+  customExtensionsPath: build/appx-extensions.xml

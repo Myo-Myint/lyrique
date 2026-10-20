@@ -99,7 +99,7 @@ export function initSetup(): void {
     row(s.playing, t('setup.playing'), t('setup.playingHelp'), [
       [t('setup.openYouTube'), () => void window.lyrique.openExternal('https://music.youtube.com')]
     ])
-    if (s.packaged) {
+    if (s.packaged && !s.store) {
       row(s.openAtLogin, t('setup.login'), t('setup.loginHelp'), [
         [t('setup.turnOn'), () => void window.lyrique.setOpenAtLogin(true)]
       ])

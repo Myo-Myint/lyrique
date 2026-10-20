@@ -1,4 +1,4 @@
-# Builds the Windows installers from this repository, and (once the SignPath Foundation
+# Builds the Windows installers and the Microsoft Store packages from this repository, and (once the SignPath Foundation
 # project is set up) sends them to SignPath for code signing. Every signing request is
 # approved by hand in SignPath before anything is signed.
 #
@@ -42,6 +42,16 @@ jobs:
         run: |
           npx electron-vite build
           npx electron-builder --win nsis --x64 --arm64 --config electron-builder.yml --publish never
+
+      - name: Build Microsoft Store packages (x64 and arm64)
+        run: npx electron-builder --win appx --x64 --arm64 --config electron-builder.yml --publish never
+
+      - name: Upload Microsoft Store packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: microsoft-store-packages
+          path: dist/Lyrique-*.appx
+          if-no-files-found: error
 
       - name: Upload unsigned installers
         id: unsigned

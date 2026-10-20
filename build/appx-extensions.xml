@@ -1,0 +1,3 @@
+        <desktop:Extension Category="windows.startupTask" Executable="app\Lyrique.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="LyriqueStartup" Enabled="false" DisplayName="Lyrique" />
+        </desktop:Extension>

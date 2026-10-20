@@ -17,7 +17,8 @@
     "pack:extension": "cd extension && mkdir -p ../dist && zip -qr -X ../dist/lyrique-bridge.zip . -x '.*'",
     "dist:local": "electron-vite build && electron-builder --mac dmg zip --arm64 --config electron-builder.yml",
     "dist:release": "electron-vite build && electron-builder --mac dmg zip --arm64 --x64 --config electron-builder.yml",
-    "dist:win": "electron-vite build && ELECTRON_BUILDER_7Z_FILTER=BCJ electron-builder --win nsis --x64 --arm64 --config electron-builder.yml"
+    "dist:win": "electron-vite build && ELECTRON_BUILDER_7Z_FILTER=BCJ electron-builder --win nsis --x64 --arm64 --config electron-builder.yml",
+    "dist:store": "electron-vite build && electron-builder --win appx --x64 --arm64 --config electron-builder.yml"
   },
   "dependencies": {
     "pinyin-pro": "^3.29.5",

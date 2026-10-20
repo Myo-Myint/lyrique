@@ -23,6 +23,21 @@ const tray = (size) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" 
   <rect x="1" y="9.2" width="10" height="2.9" rx="1.45" fill="#000" fill-opacity="0.42" />
 </svg>`
 
+// Microsoft Store tiles (build/appx/): the icon centred on a transparent tile, at 100% and 200% scale.
+const tile = (w, h, fill) => {
+  const icon = Math.round(Math.min(w, h) * fill)
+  return `<div style="width:${w}px;height:${h}px;display:grid;place-items:center">${square(icon)}</div>`
+}
+const appx = [
+  ['StoreLogo', 50, 50, 1],
+  ['Square44x44Logo', 44, 44, 1],
+  ['Square150x150Logo', 150, 150, 0.66],
+  ['Wide310x150Logo', 310, 150, 0.66]
+].flatMap(([name, w, h, fill]) => [
+  [tile(w, h, fill), w, `build/appx/${name}.png`, h],
+  [tile(w * 2, h * 2, fill), w * 2, `build/appx/${name}.scale-200.png`, h * 2]
+])
+
 const outputs = [
   [mac, 1024, 'build/icon.png'],
   [square(1024), 1024, 'build/icon-win.png'],
@@ -31,17 +46,18 @@ const outputs = [
   [square(48), 48, 'extension/icons/icon48.png'],
   [square(16), 16, 'extension/icons/icon16.png'],
   [tray(16), 16, 'build/trayTemplate.png'],
-  [tray(32), 32, 'build/trayTemplate@2x.png']
+  [tray(32), 32, 'build/trayTemplate@2x.png'],
+  ...appx
 ]
 
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
-for (const [html, size, out] of outputs) {
+for (const [html, size, out, height = size] of outputs) {
   // A fresh page per size: resizing one page can leave stale tiles in the capture.
-  const page = await browser.newPage({ deviceScaleFactor: 1, viewport: { width: size, height: size } })
+  const page = await browser.newPage({ deviceScaleFactor: 1, viewport: { width: size, height } })
   await page.setContent(`<html><body style="margin:0;background:transparent">${html}</body></html>`)
   await page.evaluate(() => Promise.all([...document.images].map((i) => i.decode())))
   mkdirSync(dirname(join(root, out)), { recursive: true })
-  await page.screenshot({ path: join(root, out), omitBackground: true, clip: { x: 0, y: 0, width: size, height: size } })
+  await page.screenshot({ path: join(root, out), omitBackground: true, clip: { x: 0, y: 0, width: size, height } })
   await page.close()
   console.log(out)
 }

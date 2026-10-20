@@ -231,13 +231,16 @@ export function initSettings(deps: Deps) {
     lang.value = st.language
     lang.addEventListener('change', () => patch({ language: lang.value }))
     row(general, t('settings.language'), t('settings.languageHelp'), lang)
-    row(
-      general,
-      t('settings.login'),
-      inf.packaged ? t('settings.loginHelp') : t('settings.loginDev'),
-      toggle(inf.openAtLogin, (v) => void window.lyrique.setOpenAtLogin(v).then(refreshInfo), !inf.packaged)
-    )
-    row(general, t('settings.updates'), t('settings.updatesHelp'), toggle(st.checkUpdates, (v) => patch({ checkUpdates: v })))
+    // The Microsoft Store updates the app, and start at login is in Windows Settings → Apps → Startup.
+    if (!inf.store) {
+      row(
+        general,
+        t('settings.login'),
+        inf.packaged ? t('settings.loginHelp') : t('settings.loginDev'),
+        toggle(inf.openAtLogin, (v) => void window.lyrique.setOpenAtLogin(v).then(refreshInfo), !inf.packaged)
+      )
+      row(general, t('settings.updates'), t('settings.updatesHelp'), toggle(st.checkUpdates, (v) => patch({ checkUpdates: v })))
+    }
     const tools = document.createElement('div')
     tools.className = 'st-tools'
     tools.append(

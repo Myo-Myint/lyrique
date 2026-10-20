@@ -1,6 +1,6 @@
 # Publishing Lyrique Bridge to the Chrome Web Store
 
-Package: `npm run pack:extension` → `dist/ytm-lyrics-extension.zip` (upload this).
+Package: `npm run pack:extension` → `dist/lyrique-bridge.zip` (upload this).
 Requires a Chrome Web Store developer account (one-time $5). Publishing makes the extension public.
 
 ## Listing

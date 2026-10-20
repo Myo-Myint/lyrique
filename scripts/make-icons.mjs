@@ -26,7 +26,7 @@ const tray = (size) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" 
 const outputs = [
   [mac, 1024, 'build/icon.png'],
   [square(1024), 1024, 'build/icon-win.png'],
-  [square(512), 512, 'release-site/docs/icon.png'],
+  [square(512), 512, 'site/icon.png'],
   [square(128), 128, 'extension/icons/icon128.png'],
   [square(48), 48, 'extension/icons/icon48.png'],
   [square(16), 16, 'extension/icons/icon16.png'],

@@ -1,7 +1,7 @@
 {
   "name": "lyrique",
   "productName": "Lyrique",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Synced, pretty lyrics for YouTube Music playing in your browser — a macOS desktop app.",
   "private": true,
   "main": "./out/main/index.js",
@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "dist": "electron-vite build && electron-builder --mac --config electron-builder.yml",
-    "pack:extension": "cd extension && zip -r ../dist/ytm-lyrics-extension.zip . -x '*.DS_Store'",
+    "pack:extension": "cd extension && mkdir -p ../dist && zip -qr -X ../dist/lyrique-bridge.zip . -x '.*'",
     "dist:local": "electron-vite build && electron-builder --mac dmg zip --arm64 --config electron-builder.yml",
     "dist:release": "electron-vite build && electron-builder --mac dmg zip --arm64 --x64 --config electron-builder.yml",
     "dist:win": "electron-vite build && ELECTRON_BUILDER_7Z_FILTER=BCJ electron-builder --win nsis --x64 --arm64 --config electron-builder.yml"

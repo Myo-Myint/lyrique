@@ -248,7 +248,7 @@ export function initSettings(deps: Deps) {
         void window.lyrique.copyDiagnostics()
         this.textContent = t('copied')
       }),
-      button(t('settings.report'), () => void window.lyrique.openExternal('https://github.com/Myo-Myint/lyrique-releases/issues/new/choose'))
+      button(t('settings.report'), () => void window.lyrique.openExternal('https://github.com/Myo-Myint/lyrique/issues/new/choose'))
     )
     general.appendChild(tools)
     const ver = document.createElement('p')

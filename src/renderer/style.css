@@ -1049,9 +1049,11 @@ button.chip.small {
   gap: 4px;
 }
 
+/* Next to the source name, so the playback buttons in the middle never cover it. */
 #user-sync {
   display: flex;
   gap: 14px;
+  margin: 0 auto 0 16px;
   text-transform: none;
   letter-spacing: 0;
 }

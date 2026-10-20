@@ -259,6 +259,8 @@ window.lyrique.onBridgeStatus((s) => (connected = s.extensionConnected))
 window.lyrique.onTrackChanged(({ track: t }) => {
   track = t
   setLyrics(null)
+  // The new cover arrives separately (or never); don't leave the last song's cover up meanwhile.
+  void applyArtwork('')
 })
 window.lyrique.onTrackArtwork(({ videoId, artwork }) => {
   if (track?.videoId === videoId) void applyArtwork(artwork)

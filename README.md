@@ -83,7 +83,8 @@ Available*). Download it and replace the app in Applications.
 
 [Open an issue](https://github.com/Myo-Myint/lyrique/issues/new/choose). For bugs, click the menu-bar icon → **Copy
 Diagnostics** and paste it in: it lists the app and extension versions and which lyrics
-sources were tried, which makes most problems quick to find.
+sources were tried, which makes most problems quick to find. Anything else, or if you'd rather
+not use GitHub: [hello@lyrique.app](mailto:hello@lyrique.app).
 
 ## Privacy
 

@@ -62,4 +62,5 @@ remove them.
 
 ## Contact
 
-Questions: open an issue on this repository.
+Questions about privacy: email [hello@lyrique.app](mailto:hello@lyrique.app), or open an issue on
+[github.com/Myo-Myint/lyrique](https://github.com/Myo-Myint/lyrique/issues).

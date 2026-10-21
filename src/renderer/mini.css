@@ -131,6 +131,11 @@ body {
   white-space: pre-wrap;
 }
 
+/* Keep a one-line row on one line, so fit() sees the overflow and shrinks or wraps it. */
+.row:not(.wrap) .w {
+  white-space: pre;
+}
+
 @property --p {
   syntax: '<number>';
   inherits: false;

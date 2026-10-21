@@ -43,8 +43,8 @@ followed through Windows' own media controls, with nothing to set up. YouTube Mu
 same browser extension as on the Mac.
 
 **Direct download instead:** the installers are on the
-[Windows release](https://github.com/Myo-Myint/lyrique/releases/tag/v0.6.3-beta.1):
-`Lyrique-0.6.3-x64.exe` for almost every PC (Intel or AMD), `Lyrique-0.6.3-arm64.exe` for
+[Windows release](https://github.com/Myo-Myint/lyrique/releases/tag/v0.6.4-beta.1):
+`Lyrique-0.6.4-x64.exe` for almost every PC (Intel or AMD), `Lyrique-0.6.4-arm64.exe` for
 Windows on Arm. They install just for you, with no admin rights needed. They aren't code-signed
 yet, so if SmartScreen says "Windows protected your PC", click **More info → Run anyway**. See
 the [code signing policy](https://lyrique.app/code-signing.html).

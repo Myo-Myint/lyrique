@@ -7,7 +7,7 @@ Windows: word-by-word highlighting, full screen on a big display, a floating min
 that line themselves up with the song.
 
 Free and open source (GPL-3.0), with no account, no ads and no analytics. For macOS on Apple Silicon (M1 and later) and Intel Macs, and
-Windows 10 and 11 in beta.
+Windows 10 and 11 ([Microsoft Store](https://apps.microsoft.com/detail/9P5TB3KSW5MT)).
 
 [![Watch how Lyrique works](docs/video-preview.jpg)](https://lyrique.app/howto.mp4)
 
@@ -35,17 +35,19 @@ Windows 10 and 11 in beta.
    [Lyrique Bridge from the Chrome Web Store](https://chromewebstore.google.com/detail/hagidkilfihkflpgpmnoifgbckldiikd).
    It works in **Chrome, Edge, Brave, Arc, Opera and Vivaldi**.
 
-### Windows (beta)
+### Windows
 
-1. **Download** from the [Windows beta release](https://github.com/Myo-Myint/lyrique/releases/tag/v0.6.3-beta.1):
-   - `Lyrique-0.6.3-x64.exe` for almost every Windows PC (Intel or AMD)
-   - `Lyrique-0.6.3-arm64.exe` for Windows on Arm (Snapdragon laptops, Surface Pro X)
-2. Run it. After a short privacy notice it installs just for you, with no admin rights needed.
-   The beta isn't code-signed yet, so if SmartScreen says "Windows protected your PC", click
-   **More info → Run anyway**. Signing is being set up: see the
-   [code signing policy](https://lyrique.app/code-signing.html).
-3. Spotify and Apple Music are followed through Windows' own media controls, with nothing to
-   set up. YouTube Music uses the same browser extension as on the Mac.
+**[Get Lyrique from the Microsoft Store](https://apps.microsoft.com/detail/9P5TB3KSW5MT)** (Windows 10 and 11). It installs in one
+click, with no security warning, and the Store keeps it up to date. Spotify and Apple Music are
+followed through Windows' own media controls, with nothing to set up. YouTube Music uses the
+same browser extension as on the Mac.
+
+**Direct download instead:** the installers are on the
+[Windows release](https://github.com/Myo-Myint/lyrique/releases/tag/v0.6.3-beta.1):
+`Lyrique-0.6.3-x64.exe` for almost every PC (Intel or AMD), `Lyrique-0.6.3-arm64.exe` for
+Windows on Arm. They install just for you, with no admin rights needed. They aren't code-signed
+yet, so if SmartScreen says "Windows protected your PC", click **More info → Run anyway**. See
+the [code signing policy](https://lyrique.app/code-signing.html).
 
 Lyrics appear as soon as a song plays. With several players open, Lyrique follows the one
 that started playing most recently.
@@ -77,7 +79,8 @@ that started playing most recently.
 ## Updates
 
 Lyrique checks this repository's releases and tells you when a new version is out (menu-bar icon → *Update
-Available*). Download it and replace the app in Applications.
+Available*). Download it and replace the app in Applications. The Microsoft Store version
+updates itself through the Store.
 
 ## Problems or ideas
 

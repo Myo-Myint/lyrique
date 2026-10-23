@@ -863,6 +863,7 @@ const whatsNew = initWhatsNew({
     else if (a === 'mini') void window.lyrique.setMini(true)
     else if (a === 'menubar') void window.lyrique.patchSettings({ menuBarLyrics: true })
     else if (a === 'second') void window.lyrique.patchSettings({ subMode: 'translate' })
+    else if (a === 'both') void window.lyrique.patchSettings({ subMode: 'both' })
     else if (a === 'share') shareActive()
     else void settingsUi.open()
   }
@@ -971,7 +972,7 @@ let subTarget = ''
 let subToken = 0
 /** Second lines for plain (unsynced) lyrics, one per text line. */
 let plainSubs: Array<string | null> = []
-const SUB_LABEL: Record<SubMode, string> = { off: t('sub.off'), romanize: t('sub.romanize'), translate: t('sub.translate') }
+const SUB_LABEL: Record<SubMode, string> = { off: t('sub.off'), romanize: t('sub.romanize'), translate: t('sub.translate'), both: t('sub.both') }
 
 function lyricTexts(): string[] {
   if (lyrics?.kind === 'synced') return lyrics.lines.map((l) => l.text)
@@ -988,27 +989,33 @@ async function loadSubs(announce = false): Promise<void> {
   if (lyrics?.kind === 'plain') renderPlain()
   const texts = lyricTexts()
   if (subMode === 'off' || !texts.length) return relayoutSoon()
-  const r = await window.lyrique.subtitles(texts, subMode)
+  const both = subMode === 'both'
+  const [rom, tr] = await Promise.all([
+    subMode !== 'translate' ? window.lyrique.subtitles(texts, 'romanize') : null,
+    subMode !== 'romanize' ? window.lyrique.subtitles(texts, 'translate') : null
+  ])
   if (token !== subToken) return
-  if (r.note && announce) toast(r.note)
+  // With both on, a note matters only when neither line has anything to show.
+  const note = both ? (rom?.lines.some(Boolean) || tr?.lines.some(Boolean) ? undefined : (tr?.note ?? rom?.note)) : (rom ?? tr)?.note
+  if (note && announce) toast(note)
   if (lyrics?.kind === 'plain') {
-    plainSubs = r.lines
+    plainSubs = texts.map((_, i) => [rom?.lines[i], tr?.lines[i]].filter(Boolean).join('\n') || null)
     renderPlain()
     return
   }
   for (const e of entries) {
     if (e.kind !== 'line') continue
-    const sub = r.lines[Number(e.el.dataset.i)]
-    // The file already pairs this line with its romanization.
-    if (!sub || (subMode === 'romanize' && e.line.sub)) continue
-    const wipe = subMode === 'romanize'
-    const d = addSub(e.el, sub, 'gen', wipe)
-    if (wipe) e.wipes.push(d)
+    const i = Number(e.el.dataset.i)
+    // The file may already pair this line with its romanization.
+    const r = e.line.sub ? null : rom?.lines[i]
+    if (r) e.wipes.push(addSub(e.el, r, 'gen', true))
+    const tl = tr?.lines[i]
+    if (tl) addSub(e.el, tl, 'gen tr', false)
   }
   relayoutSoon()
 }
 
-function addSub(lineEl: HTMLElement, text: string, kind: 'file' | 'gen', wipe: boolean): HTMLElement {
+function addSub(lineEl: HTMLElement, text: string, kind: 'file' | 'gen' | 'gen tr', wipe: boolean): HTMLElement {
   const d = document.createElement('div')
   d.className = `sub ${kind}${wipe ? ' wipe' : ''}`
   d.textContent = text
@@ -1047,7 +1054,7 @@ function renderPlain(): void {
 }
 
 function cycleSubMode(): void {
-  const order: SubMode[] = ['off', 'romanize', 'translate']
+  const order: SubMode[] = ['off', 'romanize', 'translate', 'both']
   const next = order[(order.indexOf(subMode) + 1) % order.length]!
   toast(next === 'translate' ? t('sub.translateHint') : SUB_LABEL[next])
   pendingAnnounce = true
@@ -1113,7 +1120,8 @@ async function shareLine(lineIdx: number): Promise<void> {
   const line = lyrics?.lines[lineIdx]
   if (!line?.text.trim() || !track) return
   const entry = entries.find((e) => e.kind === 'line' && Number(e.el.dataset.i) === lineIdx)
-  const sub = entry?.el.querySelector('.sub')?.textContent ?? null
+  const subs = [...(entry?.el.querySelectorAll('.sub') ?? [])].map((d) => d.textContent ?? '').filter(Boolean)
+  const sub = subs.length ? subs.join(' · ') : null
   const url = await renderShareCard({
     text: line.text.trim(),
     sub,

@@ -64,12 +64,14 @@ async function loadSubs(): Promise<void> {
     subs = []
     return
   }
-  const r = await window.lyrique.subtitles(
-    l.lines.map((x) => x.text),
-    settings.subMode
-  )
+  const texts = l.lines.map((x) => x.text)
+  // One line of room: with both on, the romanization (what you sing), else the translation.
+  const [rom, tr] = await Promise.all([
+    settings.subMode !== 'translate' ? window.lyrique.subtitles(texts, 'romanize') : null,
+    settings.subMode !== 'romanize' ? window.lyrique.subtitles(texts, 'translate') : null
+  ])
   if (l === lyrics) {
-    subs = r.lines
+    subs = texts.map((_, i) => rom?.lines[i] ?? tr?.lines[i] ?? null)
     row = null // rebuild with the second line
   }
 }

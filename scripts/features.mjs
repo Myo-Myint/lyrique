@@ -1,4 +1,4 @@
-// Scripted check of the mini bar, second line (romanize / translate), text size, fonts,
+// Scripted check of the mini bar, second line (romanize / translate / both), text size, fonts,
 // share card and diagnostics. Runs the built app on a throwaway profile and port, playing
 // the part of the browser extension. Usage: node scripts/features.mjs <outDir>
 import { _electron as electron } from 'playwright'
@@ -85,6 +85,9 @@ await shot('02-ko-romanized')
 await win.keyboard.press('t')
 await sleep(3000)
 await shot('03-ko-translated')
+await win.keyboard.press('t')
+await sleep(3000)
+await shot('03b-ko-both')
 await win.keyboard.press('=')
 await win.keyboard.press('=')
 await sleep(900)
@@ -120,8 +123,8 @@ hold(16.5)
 await sleep(1200)
 await shot('09-mini-english-line', mini)
 
-// Song 2: Japanese, romanized, in both windows.
-await win.evaluate(() => window.lyrique.patchSettings({ subMode: 'romanize' }))
+// Song 2: Japanese, romanization + translation, in both windows.
+await win.evaluate(() => window.lyrique.patchSettings({ subMode: 'both' }))
 play({ videoId: 'test-ja', title: '夜明けの歌', artist: 'Sora', album: '' })
 hold(5)
 lyr('test-ja', [
@@ -130,7 +133,7 @@ lyr('test-ja', [
   ['今日も明日も', 12, 16]
 ])
 await sleep(4000)
-await shot('10-ja-romanized')
+await shot('10-ja-both')
 await shot('11-mini-ja', mini)
 
 // Song 3: a file that pairs each line with its romanization under the same timestamp.

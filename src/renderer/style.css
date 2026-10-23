@@ -1528,11 +1528,18 @@ body[data-font='serif'] .line {
   width: fit-content;
 }
 
+/* Translation under a romanized line: same size, a little quieter. */
+.line .sub + .sub.tr {
+  margin-top: 0.1em;
+  opacity: 0.85;
+}
+
 .line.bgline .sub {
   font-size: 0.6em;
 }
 
 #plain-text .sub {
+  white-space: pre-line;
   font-family: var(--font);
   font-size: 0.66em;
   font-weight: 500;

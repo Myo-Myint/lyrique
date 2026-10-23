@@ -104,7 +104,7 @@ export interface Settings {
   userSyncOff: Record<string, true>
   /** Setup checklist finished or dismissed. */
   onboarded: boolean
-  /** Second line under each lyric: off, romanization (non-Latin scripts) or translation. */
+  /** Second line under each lyric: off, romanization (non-Latin scripts), translation, or both. */
   subMode: SubMode
   /** Translation target language code ('' = the system language). */
   translateTo: string
@@ -130,7 +130,7 @@ export interface Settings {
   checkUpdates: boolean
 }
 
-export type SubMode = 'off' | 'romanize' | 'translate'
+export type SubMode = 'off' | 'romanize' | 'translate' | 'both'
 export type LyricsFont = 'default' | 'rounded' | 'serif'
 export const TEXT_SCALES = [0.8, 0.9, 1, 1.12, 1.25, 1.4, 1.6]
 

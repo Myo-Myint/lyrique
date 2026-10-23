@@ -164,7 +164,8 @@ export function initSettings(deps: Deps) {
         [
           ['off', t('settings.off')],
           ['romanize', t('sub.romanize')],
-          ['translate', t('sub.translate')]
+          ['translate', t('sub.translate')],
+          ['both', t('sub.bothShort')]
         ],
         (subMode) => patch({ subMode })
       )

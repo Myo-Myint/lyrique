@@ -317,7 +317,7 @@ function diagnostics(): string {
       : 'Lyrics: none loaded',
     `Offsets: song ${fmt(st ? (s.trackOffsets[st.videoId] ?? 0) : 0)} · auto ${auto ? `${fmt(auto.offsetMs)} (${auto.source})` : 'none'} · global ${fmt(s.globalOffsetMs)} · ${devices.length} audio output offset(s)${devices.length ? ` ${devices.map(fmt).join(', ')}` : ''}`,
     `Menu bar lyrics: ${s.menuBarLyrics ? `on, showing "${menuBarText.trim()}"` : 'off'} · audio output offset in use ${fmt(s.deviceOffsets[outputDevice] ?? 0)}`,
-    `View: second line ${s.subMode}${s.subMode === 'translate' ? ` → ${translateTarget()}` : ''} · text ×${s.textScale} · font ${s.font} · mini ${mini ? 'on' : 'off'} · on top ${s.alwaysOnTop ? 'on' : 'off'}`,
+    `View: second line ${s.subMode}${s.subMode === 'translate' || s.subMode === 'both' ? ` → ${translateTarget()}` : ''} · text ×${s.textScale} · font ${s.font} · mini ${mini ? 'on' : 'off'} · on top ${s.alwaysOnTop ? 'on' : 'off'}`,
     `Update: ${update ? `${update.version} available` : 'up to date or not checked'}`,
     ...(() => {
       const problems = recentProblems()
@@ -449,7 +449,8 @@ function buildTrayMenu(): void {
             [
               ['off', t('tray.noSecond')],
               ['romanize', t('tray.romanization')],
-              ['translate', t('tray.translation', { language: languageName(translateTarget()) })]
+              ['translate', t('tray.translation', { language: languageName(translateTarget()) })],
+              ['both', t('tray.both', { language: languageName(translateTarget()) })]
             ] as Array<[SubMode, string]>
           ).map(([subMode, label]) => ({
             label,
@@ -471,7 +472,7 @@ function buildTrayMenu(): void {
                 label: languageName(code),
                 type: 'radio' as const,
                 checked: s.translateTo === code,
-                click: () => patchAndBroadcast({ translateTo: code, subMode: 'translate' })
+                click: () => patchAndBroadcast({ translateTo: code, subMode: s.subMode === 'both' ? 'both' : 'translate' })
               }))
             ]
           }

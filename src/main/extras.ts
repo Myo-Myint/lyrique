@@ -9,7 +9,7 @@
  */
 import { app, net } from 'electron'
 import { pinyin } from 'pinyin-pro'
-import { hasHan, hasHangul, hasKana, needsRomanization, romanizeKorean } from '../shared/romanize'
+import { hasHan, hasHangul, hasKana, linesToTranslate, needsRomanization, romanizeKorean } from '../shared/romanize'
 import type { SubMode } from '../shared/types'
 import { logProblem } from './log'
 import { getLocale, t } from '../shared/i18n'
@@ -42,7 +42,7 @@ export function subtitles(lines: string[], mode: SubMode, target: string): Promi
       return { lines: lines.map(() => null), note: t('subs.unreachable', { error: String(err?.message ?? err) }) }
     })
     cache.set(key, hit)
-    if (cache.size > 40) cache.delete(cache.keys().next().value!)
+    if (cache.size > 80) cache.delete(cache.keys().next().value!)
   }
   return hit
 }
@@ -104,7 +104,7 @@ async function romanize(lines: string[]): Promise<SubResult> {
 
 async function translate(lines: string[], target: string): Promise<SubResult> {
   const out: Array<string | null> = lines.map(() => null)
-  const idx = lines.map((_, i) => i).filter((i) => /\p{L}/u.test(lines[i]!))
+  const idx = linesToTranslate(lines, target)
   const langs: string[] = []
   for (const group of chunks(idx, lines, 1)) {
     const data = (await post(`sl=auto&tl=${encodeURIComponent(target)}&dt=t`, group.map((i) => lines[i]).join('\n'))) as unknown[]

@@ -10,6 +10,21 @@ export function needsRomanization(text: string): boolean {
   return false
 }
 
+/** Languages written in Latin script, so a Latin-script line is likely already readable. */
+const LATIN_TARGETS = new Set(['en', 'es', 'fr', 'de', 'pt', 'it', 'vi', 'id', 'tr'])
+
+/**
+ * Lines worth translating. In a song that mixes scripts (English hooks in K-pop), Latin
+ * lines are skipped for a Latin-script target: Google rewords them slightly, which would
+ * show a near-copy under the line.
+ */
+export function linesToTranslate(lines: string[], target: string): number[] {
+  const idx = lines.map((_, i) => i).filter((i) => /\p{L}/u.test(lines[i]!))
+  const mixed = idx.some((i) => needsRomanization(lines[i]!))
+  if (!mixed || !LATIN_TARGETS.has(target.split('-')[0]!)) return idx
+  return idx.filter((i) => needsRomanization(lines[i]!))
+}
+
 export const hasHangul = (s: string) => /\p{Script=Hangul}/u.test(s)
 export const hasKana = (s: string) => /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(s)
 export const hasHan = (s: string) => /\p{Script=Han}/u.test(s)

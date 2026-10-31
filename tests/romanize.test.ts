@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { needsRomanization, romanizeKorean } from '../src/shared/romanize'
+import { linesToTranslate, needsRomanization, romanizeKorean } from '../src/shared/romanize'
 
 describe('romanizeKorean', () => {
   it.each([
@@ -27,4 +27,11 @@ describe('needsRomanization', () => {
     expect(needsRomanization('Я тебя люблю')).toBe(true)
     expect(needsRomanization('(oh-oh) 123!')).toBe(false)
   })
+})
+
+describe('linesToTranslate', () => {
+  const kpop = ['말해줘, say it back', 'I want you so, want you, so say it ditto', '', '♪']
+  it('skips Latin lines of a mixed song for a Latin target', () => expect(linesToTranslate(kpop, 'en')).toEqual([0]))
+  it('keeps them for a non-Latin target', () => expect(linesToTranslate(kpop, 'ja')).toEqual([0, 1]))
+  it('keeps every line of an all-Latin song', () => expect(linesToTranslate(['Hola amigo', 'Te quiero'], 'en')).toEqual([0, 1]))
 })

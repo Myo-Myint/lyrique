@@ -17,6 +17,12 @@ export interface ExtensionLyrics {
   plain?: string
 }
 
+/** Anything can connect on localhost, so text fields that aren't text become empty. */
+function cleanState(s: PlayerState): PlayerState {
+  for (const k of ['videoId', 'title', 'artist', 'album', 'artwork'] as const) if (typeof s[k] !== 'string') s[k] = ''
+  return s
+}
+
 /**
  * Local WebSocket server the browser extension connects to.
  * Bound to loopback only; one message type ('state') flows in, 'hello' flows out.
@@ -46,7 +52,7 @@ export class ExtensionBridge {
       ws.on('message', (data) => {
         try {
           const msg = JSON.parse(data.toString()) as { type?: string }
-          if (msg.type === 'state') this.onState?.(msg as PlayerState)
+          if (msg.type === 'state') this.onState?.(cleanState(msg as PlayerState))
           else if (msg.type === 'lyrics') this.onLyrics?.(msg as ExtensionLyrics)
           else if (msg.type === 'audio') this.onAudio?.(msg as ExtensionAudio)
           else if (msg.type === 'ping') ws.send('{"type":"pong"}')

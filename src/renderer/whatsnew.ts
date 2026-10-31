@@ -55,7 +55,9 @@ export function initWhatsNew(deps: { run: (a: WhatsNewAction) => void; showShort
     list.textContent = ''
     $('wn-title').textContent = t('new.title', { version })
     const fresh = seen ? ITEMS.filter((i) => newer(i.since, seen) && !newer(i.since, version)) : []
-    const extra = fresh.length >= 3 ? [] : ITEMS.filter((i) => HIGHLIGHTS.includes(i.key) && !fresh.includes(i)).slice(0, MAX - fresh.length)
+    // The second-line highlight is old news next to the new "both" card.
+    const covered = (i: Item) => i.key === 'second' && fresh.some((f) => f.key === 'both')
+    const extra = fresh.length >= 3 ? [] : ITEMS.filter((i) => HIGHLIGHTS.includes(i.key) && !fresh.includes(i) && !covered(i)).slice(0, MAX - fresh.length)
     fresh.slice(0, MAX).forEach(add)
     if (extra.length && fresh.length) {
       const h = document.createElement('div')

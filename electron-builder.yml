@@ -6,6 +6,8 @@ directories:
 files:
   - out/**
   - package.json
+  # kuromoji ships its 22 MB test suite; the app needs only src/ and dict/.
+  - "!node_modules/kuromoji/{test,build,demo,example,coverage,gulpfile.js}{,/**}"
 asar: true
 extraResources:
   - from: extension

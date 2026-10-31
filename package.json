@@ -21,11 +21,14 @@
     "dist:store": "electron-vite build && electron-builder --win appx --x64 --arm64 --config electron-builder.yml"
   },
   "dependencies": {
+    "kuromoji": "^0.1.2",
     "pinyin-pro": "^3.29.5",
+    "wanakana": "^5.3.1",
     "ws": "^8.22.0",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@types/kuromoji": "^0.1.3",
     "@types/node": "^22.19.0",
     "@types/ws": "^8.18.1",
     "electron": "^44.9.0",

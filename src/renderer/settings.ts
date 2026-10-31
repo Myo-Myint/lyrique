@@ -3,8 +3,9 @@
  * in one place. Opened with ⌘, or from the menu bar. Changes apply immediately.
  */
 import type { SettingsInfo } from '../preload/index'
-import { keyLabel, t } from '../shared/i18n'
-import { TEXT_SCALES, type LyricsFont, type Settings, type SubMode } from '../shared/types'
+import { keyLabel, t, type MessageKey } from '../shared/i18n'
+import { TEXT_SCALES, type LyricSourceId, type LyricsFont, type Settings, type SubMode } from '../shared/types'
+import { SOURCE_NAME, sourceOrder } from '../shared/sources'
 
 const $ = (id: string) => document.getElementById(id)!
 
@@ -16,6 +17,8 @@ type Deps = {
 }
 
 const fmtMs = (ms: number) => `${ms > 0 ? '+' : ms < 0 ? '−' : ''}${(Math.abs(ms) / 1000).toFixed(1)} s`
+
+const SOURCE_HELP: Record<LyricSourceId, MessageKey> = { youtube: 'settings.sourceYoutube', lrclib: 'settings.sourceLrclib', qq: 'settings.sourceQq' }
 
 export function initSettings(deps: Deps) {
   const root = $('settings')
@@ -127,6 +130,30 @@ export function initSettings(deps: Deps) {
       p.textContent = t('settings.following', { player: inf.following })
       listen.appendChild(p)
     }
+
+    const src = section(t('settings.sources'))
+    const order = sourceOrder(st.lyricSources)
+    const onCount = order.filter((x) => x.on).length
+    order.forEach((x, k) => {
+      const ctl = document.createElement('div')
+      ctl.className = 'st-step'
+      const up = button('↑', () => {
+        const next = [...order]
+        ;[next[k - 1], next[k]] = [next[k]!, next[k - 1]!]
+        patch({ lyricSources: next })
+      }, '')
+      up.title = t('settings.moveUp')
+      up.setAttribute('aria-label', `${t('settings.moveUp')}: ${SOURCE_NAME[x.id]}`)
+      if (k === 0) up.style.visibility = 'hidden'
+      // Keep at least one source on, or no song would ever find lyrics.
+      const sw = toggle(x.on, (v) => patch({ lyricSources: order.map((o) => (o.id === x.id ? { ...o, on: v } : o)) }), x.on && onCount === 1)
+      ctl.append(up, sw)
+      row(src, SOURCE_NAME[x.id], t(SOURCE_HELP[x.id]), ctl)
+    })
+    const srcNote = document.createElement('p')
+    srcNote.className = 'st-note'
+    srcNote.textContent = t('settings.sourcesHelp')
+    src.appendChild(srcNote)
 
     const look = section(t('settings.lyrics'))
     const i = TEXT_SCALES.indexOf(st.textScale)

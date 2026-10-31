@@ -231,6 +231,17 @@ for (const r of switches) {
 }
 await sleep(400)
 console.log('settings switch: menuBarLyrics', before2, '→', (await win.evaluate(() => window.lyrique.getSettings())).menuBarLyrics)
+// Lyrics sources: switch QQ Music off, move LRCLIB above YouTube Music.
+const srcRow = async (name) => {
+  for (const r of await win.$$('#st-body .st-row')) if ((await r.$eval('.st-label', (e) => e.textContent)) === name) return r
+}
+await (await (await srcRow('QQ Music')).$('.st-switch')).click()
+await sleep(300)
+await (await (await srcRow('LRCLIB')).$('.st-step button:not(.st-switch)')).click()
+await sleep(400)
+await (await srcRow('LRCLIB')).scrollIntoViewIfNeeded()
+await shot('18b-sources')
+console.log('lyrics sources:', JSON.stringify((await win.evaluate(() => window.lyrique.getSettings())).lyricSources))
 await win.keyboard.press('Escape')
 await sleep(200)
 // Shortcut guide (?).

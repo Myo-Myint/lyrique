@@ -1,8 +1,8 @@
 /**
  * The optional second line under each lyric: romanization or translation.
  *
- * Romanization: Korean and Chinese are done offline (rules / pinyin dictionary). Japanese
- * kanji readings and other scripts (Cyrillic, Thai, …) need a dictionary we don't ship, so
+ * Romanization: Korean, Chinese and Japanese are done offline (rules / pinyin dictionary /
+ * kuromoji's IPADIC). Other scripts (Cyrillic, Thai, …) need a dictionary we don't ship, so
  * those lines go to Google Translate's public endpoint, which returns a transliteration.
  * Translation also uses that endpoint. Either way only lyric text is sent, and only while the
  * user has the feature switched on.
@@ -11,6 +11,7 @@ import { app, net } from 'electron'
 import { pinyin } from 'pinyin-pro'
 import { hasHan, hasHangul, hasKana, linesToTranslate, needsRomanization, romanizeKorean } from '../shared/romanize'
 import type { SubMode } from '../shared/types'
+import { romanizeJapanese } from './japanese'
 import { logProblem } from './log'
 import { getLocale, t } from '../shared/i18n'
 
@@ -82,15 +83,27 @@ async function romanize(lines: string[]): Promise<SubResult> {
   // Kana anywhere means the Han characters are Japanese kanji, not Chinese.
   const japanese = hasKana(all)
   const remote: number[] = []
+  const local: number[] = []
   lines.forEach((text, i) => {
     if (!needsRomanization(text)) return
     if (hasHangul(text) && !hasKana(text) && !hasHan(text)) out[i] = romanizeKorean(text)
+    else if (japanese && !hasHangul(text) && /^[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}\p{Script=Latin}\P{L}]*$/u.test(text)) local.push(i)
     else if (!japanese && hasHan(text) && !hasHangul(text)) {
       out[i] = text.replace(/\p{Script=Han}+/gu, (run) => ` ${pinyin(run, { type: 'string', toneType: 'symbol', nonZh: 'consecutive' })} `)
         .replace(/\s+/g, ' ')
         .trim()
     } else remote.push(i)
   })
+  if (local.length) {
+    try {
+      const rom = await romanizeJapanese(local.map((i) => lines[i]!))
+      local.forEach((i, k) => (out[i] = rom[k] ?? null))
+    } catch (err) {
+      logProblem('translation', `japanese dictionary: ${String((err as Error)?.message ?? err)}`)
+      remote.push(...local) // Google still knows the readings
+      remote.sort((a, b) => a - b)
+    }
+  }
   for (const group of chunks(remote, lines, SEP.length)) {
     const data = (await post(`sl=${japanese ? 'ja' : 'auto'}&tl=en&dt=rm`, group.map((i) => lines[i]).join(SEP))) as unknown[][]
     const rm = (data?.[0] as unknown[] | undefined)?.at(-1) as unknown[] | undefined

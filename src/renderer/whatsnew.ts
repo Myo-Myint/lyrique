@@ -12,7 +12,7 @@ export type WhatsNewAction = 'karaoke' | 'mini' | 'menubar' | 'second' | 'both' 
 interface Item {
   /** Version that introduced it. */
   since: string
-  key: 'both' | 'updates' | 'renamed' | 'controls' | 'language' | 'karaoke' | 'duets' | 'motion' | 'settings' | 'players' | 'menubar' | 'mini' | 'second' | 'share'
+  key: 'both' | 'japanese' | 'sources' | 'updates' | 'renamed' | 'controls' | 'language' | 'karaoke' | 'duets' | 'motion' | 'settings' | 'players' | 'menubar' | 'mini' | 'second' | 'share'
   action?: WhatsNewAction
   /** Reuse other strings instead of new.<key>.title / new.<key>.body. */
   text?: [MessageKey, MessageKey]
@@ -21,6 +21,8 @@ interface Item {
 /** Newest first. */
 const ITEMS: Item[] = [
   { since: '0.7.0', key: 'both', action: 'both' },
+  { since: '0.7.0', key: 'japanese' },
+  { since: '0.7.0', key: 'sources', action: 'settings' },
   { since: '0.6.1', key: 'updates', action: 'settings', text: ['settings.updates', 'settings.updatesHelp'] },
   { since: '0.6.0', key: 'renamed' },
   { since: '0.5.1', key: 'controls' },

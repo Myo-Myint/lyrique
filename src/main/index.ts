@@ -4,6 +4,7 @@ import { ExtensionBridge, type ExtensionAudio, type ExtensionLyrics } from './br
 import { estimateOffset, type AudioFrame, type SyncResult } from '../shared/autosync'
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { findLyrics, listCandidates, loadCandidate, publishToLrclib, type Candidate } from './lyrics'
+import { enabledSources, preference, sourceIdOf } from '../shared/sources'
 import { watchForUpdates, type UpdateInfo } from './updates'
 import { APP_LABEL, isPermissionError, MUSIC_ART, musicArtwork, NATIVE_APPS, NativePlayers, type NativeApp } from './players'
 import { WEB_STORE_URL } from '../shared/links'
@@ -213,6 +214,10 @@ function patchAndBroadcast(p: Partial<Settings>): Settings {
   const next = settings.patch(p)
   if ('menuBarLyrics' in p) updateMenuBarLyrics()
   if ('players' in p) startNativePlayers()
+  if ('lyricSources' in p) {
+    prefetched.clear() // ask again with the new choice of sources
+    refetch()
+  }
   const relabel = 'language' in p && applyLocale()
   buildTrayMenu()
   send('settings:changed', next)
@@ -701,7 +706,8 @@ async function loadTrack(s: PlayerState, force = false, lyricsOnly = false): Pro
 
   // YouTube Music's own timed lyrics (if the extension already fetched them) win:
   // they're cut to the exact master that's playing, so they never need an offset.
-  const yt = force ? undefined : ytLyrics.get(s.videoId)
+  const sources = enabledSources(s0.lyricSources)
+  const yt = force || !sources.includes('youtube') ? undefined : ytLyrics.get(s.videoId)
   shownLyrics = null
   // Your own sync wins unless you switched back to the original for this song.
   const mine = userLyrics.get(s.videoId)
@@ -723,12 +729,15 @@ async function loadTrack(s: PlayerState, force = false, lyricsOnly = false): Pro
   }
 
   let lyrics: Lyrics | undefined = force ? undefined : withMergedLines(cache.get(s.videoId))
+  // Cached from a source you've since switched off: look again.
+  const from = lyrics && sourceIdOf(lyrics.source)
+  if (from && !sources.includes(from)) lyrics = undefined
   // Cached before fake-timing detection existed: look again.
   if (lyrics?.kind === 'synced' && looksFakeSynced(lyrics.lines)) lyrics = undefined
   if (!lyrics) {
     try {
       const pre = force ? undefined : prefetched.get(trackKey(s.title, s.artist))
-      lyrics = (pre && (await pre)) || (await findLyrics(s))
+      lyrics = (pre && (await pre)) || (await findLyrics(s, sources))
     } catch (err) {
       console.error('[lyrics] fetch failed', err)
       lyrics = {
@@ -764,7 +773,10 @@ function rank(l: Lyrics): number {
   if (l.source === USER_SOURCE) return 5 // synced by you for exactly this recording
   if (l.picked) return 4.5 // chosen by you in the picker
   if (l.kind === 'instrumental') return 2.5
-  if (l.kind === 'synced') return l.wordSynced ? 4 : l.source.startsWith('YouTube') ? 3 : 2.7
+  // Equally good lyrics: the source higher in your list wins (YouTube Music first by default,
+  // as its lyrics are cut to the master that's playing).
+  const pref = preference(l.source, enabledSources(settings.get().lyricSources))
+  if (l.kind === 'synced') return (l.wordSynced ? 4 : 2.7) + pref
   if (l.kind === 'plain') return 1
   return 0
 }
@@ -782,7 +794,7 @@ function handleExtensionLyrics(l: ExtensionLyrics): void {
     lyrics = { kind: 'plain', source: l.source, lines: [], plain: l.plain, wordSynced: false, matched }
   } else return
   ytLyrics.set(l.videoId, lyrics)
-  if (l.videoId !== currentVideoId) return
+  if (l.videoId !== currentVideoId || !enabledSources(settings.get().lyricSources).includes('youtube')) return
   // Upgrade what's on screen if this is better than what we have.
   if (!shownLyrics || rank(lyrics) > rank(shownLyrics)) {
     shownLyrics = lyrics
@@ -948,9 +960,10 @@ interface PickerList {
 async function pickerList(): Promise<PickerList | null> {
   const st = lastState
   if (!st || st.isAd) return null
-  const yt = ytLyrics.get(st.videoId)
+  const sources = enabledSources(settings.get().lyricSources)
+  const yt = sources.includes('youtube') ? ytLyrics.get(st.videoId) : undefined
   return {
-    candidates: await listCandidates(st),
+    candidates: await listCandidates(st, sources),
     youtube: yt && yt.kind !== 'none' ? { kind: yt.kind } : null,
     pickedId: shownLyrics?.picked?.id ?? null,
     showing: shownLyrics ? `${shownLyrics.source}${shownLyrics.kind === 'synced' ? '' : ` · ${shownLyrics.kind}`}` : ''
@@ -992,7 +1005,7 @@ function prefetchNext(s: PlayerState): void {
   if (prefetched.size > 20) prefetched.delete(prefetched.keys().next().value!)
   const fake = { ...s, videoId: '', title: n.title, artist: n.artist, album: '', duration: n.duration, next: null }
   // A miss isn't cached: the real track will search again (maybe with better metadata).
-  prefetched.set(key, findLyrics(fake).then((l) => (l.kind === 'none' ? null : l)).catch(() => null))
+  prefetched.set(key, findLyrics(fake, enabledSources(settings.get().lyricSources)).then((l) => (l.kind === 'none' ? null : l)).catch(() => null))
 }
 
 /** Page-script version this app needs for play/pause/skip and queue prefetch. */

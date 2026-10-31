@@ -3,7 +3,7 @@ import { app, net } from 'electron'
 import { RELEASES_REPO } from '../shared/links'
 import YAML from 'yaml'
 import { createHash } from 'node:crypto'
-import type { Lyrics, PlayerState } from '../shared/types'
+import type { LyricSourceId, Lyrics, PlayerState } from '../shared/types'
 import { cleanArtist, cleanTitle, fromLyricsfile, looksFakeSynced, parseLrc, similarity, stripCredits } from '../shared/lrc'
 
 const API = 'https://lrclib.net/api'
@@ -299,16 +299,16 @@ async function qqLyricsFor(song: QqSong, durationMs: number, source = 'QQ Music'
 
 const quality = (l: Lyrics) => (l.kind === 'synced' ? 3 : l.kind === 'instrumental' ? 2.5 : l.kind === 'plain' ? 1 : 0)
 
-const PROVIDERS: Array<[string, (s: PlayerState) => Promise<Lyrics>]> = [
-  ['LRCLIB', lrclibLyrics],
-  ['QQ Music', qqLyrics]
-]
+const PROVIDERS: Partial<Record<LyricSourceId, [string, (s: PlayerState) => Promise<Lyrics>]>> = {
+  lrclib: ['LRCLIB', lrclibLyrics],
+  qq: ['QQ Music', qqLyrics]
+}
 
-/** Try each provider in order, stopping at the first synced result; keep the best otherwise. */
-export async function findLyrics(state: PlayerState): Promise<Lyrics> {
+/** Try the switched-on providers in your order, stopping at the first synced result; keep the best otherwise. */
+export async function findLyrics(state: PlayerState, sources: LyricSourceId[] = ['lrclib', 'qq']): Promise<Lyrics> {
   const tried: string[] = []
   let best: Lyrics | null = null
-  for (const [name, fetchFrom] of PROVIDERS) {
+  for (const [name, fetchFrom] of sources.flatMap((id) => (PROVIDERS[id] ? [PROVIDERS[id]!] : []))) {
     tried.push(name)
     let l: Lyrics
     try {
@@ -355,7 +355,7 @@ export interface Candidate {
 const loaders = new Map<string, (durationMs: number) => Promise<Lyrics>>()
 
 /** Every plausible match from LRCLIB and QQ Music, best first. */
-export async function listCandidates(state: PlayerState): Promise<Candidate[]> {
+export async function listCandidates(state: PlayerState, sources: LyricSourceId[] = ['lrclib', 'qq']): Promise<Candidate[]> {
   const title = cleanTitle(state.title)
   const artist = cleanArtist(state.artist)
   if (!title) return []
@@ -366,13 +366,15 @@ export async function listCandidates(state: PlayerState): Promise<Candidate[]> {
   }
   const [lrc, qq] = await Promise.all([
     Promise.all(
-      [`${API}/search?${q({ track_name: title, artist_name: artist })}`, `${API}/search?${q({ q: `${artist} ${title}` })}`, `${API}/search?${q({ q: title })}`].map(
+      (sources.includes('lrclib') ? [`${API}/search?${q({ track_name: title, artist_name: artist })}`, `${API}/search?${q({ q: `${artist} ${title}` })}`, `${API}/search?${q({ q: title })}`] : []).map(
         (u) => getJson<LrclibRecord[]>(u).catch(() => null)
       )
     ),
-    qqJson<{ data?: { song?: { list?: QqSong[] } } }>(
-      `https://c.y.qq.com/soso/fcgi-bin/client_search_cp?format=json&p=1&n=10&cr=1&w=${encodeURIComponent(`${artist} ${title}`)}`
-    ).catch(() => null)
+    sources.includes('qq')
+      ? qqJson<{ data?: { song?: { list?: QqSong[] } } }>(
+          `https://c.y.qq.com/soso/fcgi-bin/client_search_cp?format=json&p=1&n=10&cr=1&w=${encodeURIComponent(`${artist} ${title}`)}`
+        ).catch(() => null)
+      : null
   ])
   const out: Candidate[] = []
   const seen = new Set<string>()

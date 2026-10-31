@@ -11,6 +11,7 @@ import { renderShareCard } from './share'
 import { initPicker } from './picker'
 import { initSettings, initShortcuts } from './settings'
 import { needsRomanization } from '../shared/romanize'
+import { enabledSources } from '../shared/sources'
 
 // Window errors go to the local problem log, for Copy Diagnostics.
 window.addEventListener('error', (e) => void window.lyrique.logProblem('main', `${e.message} (${e.filename?.split('/').pop()}:${e.lineno})`))
@@ -484,7 +485,8 @@ function refreshView(): void {
   }
   if (!lyrics || lyrics.kind === 'none') {
     const fromYouTube = !['spotify', 'music'].includes(track.videoType)
-    const tried = [...(fromYouTube ? ['YouTube Music'] : []), ...(lyrics?.tried ?? ['LRCLIB'])]
+    const youtubeOn = enabledSources(settings?.lyricSources).includes('youtube')
+    const tried = [...(fromYouTube && youtubeOn ? ['YouTube Music'] : []), ...(lyrics?.tried ?? ['LRCLIB'])]
     showEmpty(
       t('empty.none'),
       t('empty.noneBody', { sources: esc(listJoin(tried)), title: esc(track.title), artist: esc(track.artist) }),

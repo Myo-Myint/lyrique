@@ -118,7 +118,8 @@ romanization or translation is switched on.
   position to the app over `127.0.0.1`.
 - **Lyrics.** YouTube Music's own timed lyrics when the extension has them, then
   [LRCLIB](https://lrclib.net) (free and keyless, with word timings when available), then QQ
-  Music, then plain text. Line-only lyrics get estimated word timings for the highlight
+  Music, then plain text; each source can be switched off or moved up in Settings. Line-only
+  lyrics get estimated word timings for the highlight
   (`src/shared/estimate.ts`). If nothing exists, you can sync a song yourself by tapping
   along, and optionally share it back to LRCLIB.
 - **Nothing to configure, nothing collected.** There are no API keys in this repository, no

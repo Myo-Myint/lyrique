@@ -118,6 +118,8 @@ export interface Settings {
   menuBarLyrics: boolean
   /** Mac apps Lyrique follows directly (no extension needed). */
   players: { spotify: boolean; music: boolean }
+  /** Lyrics sources, most preferred first; a switched-off source is never asked. */
+  lyricSources: Array<{ id: LyricSourceId; on: boolean }>
   /** The one-time "press ? for shortcuts" tip has been shown. */
   shortcutTipShown: boolean
   /** Calm view (no drifting background, sliding or lifting lines); also on with macOS Reduce Motion. */
@@ -131,6 +133,7 @@ export interface Settings {
 }
 
 export type SubMode = 'off' | 'romanize' | 'translate' | 'both'
+export type LyricSourceId = 'youtube' | 'lrclib' | 'qq'
 export type LyricsFont = 'default' | 'rounded' | 'serif'
 export const TEXT_SCALES = [0.8, 0.9, 1, 1.12, 1.25, 1.4, 1.6]
 
@@ -158,6 +161,11 @@ export const DEFAULT_SETTINGS: Settings = {
   miniBounds: null,
   menuBarLyrics: false,
   players: { spotify: true, music: true },
+  lyricSources: [
+    { id: 'youtube', on: true },
+    { id: 'lrclib', on: true },
+    { id: 'qq', on: true }
+  ],
   shortcutTipShown: false,
   reduceMotion: false,
   language: '',

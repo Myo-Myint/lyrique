@@ -27,14 +27,15 @@ To find lyrics, Lyrique sends the track's **title, artist, album and duration** 
 - [LRCLIB](https://lrclib.net) and
 - QQ Music's public lyrics search,
 
-and loads artwork from Google's image servers (the same images YouTube Music shows).
+unless you switch that service off in Settings → *Lyrics sources* (a switched-off service is
+never contacted). Lyrique also loads artwork from Google's image servers (the same images YouTube Music shows).
 For songs playing in Apple Music, the cover may be looked up by title and artist in Apple's
 public catalogue search (`itunes.apple.com`) when the Music app doesn't provide it.
 
 **Romanization and translation** are off until you switch them on (the **T** key or the
 menu-bar icon → *Lyrics*). While on, the song's lyric text is sent to Google Translate's
-public endpoint (`translate.googleapis.com`) to translate it, or to romanize Japanese and
-other scripts. Korean and Chinese romanization happen on your Mac. Nothing else is sent with
+public endpoint (`translate.googleapis.com`) to translate it, or to romanize scripts such as
+Thai or Cyrillic. Korean, Chinese and Japanese romanization happen on your computer. Nothing else is sent with
 the lyrics — no account, title, or listening history.
 
 **Lyric cards** you share are made on your Mac and only go where you paste or save them.

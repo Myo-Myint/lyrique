@@ -11,7 +11,9 @@ describe('romanizeJapanese', () => {
     ['ねえ、ちょっと待って！', 'Nee, chotto matte!'],
     ['僕は君が好きだった', 'Boku wa kimi ga suki datta'],
     ['無敵の笑顔で荒らすメディア', 'Muteki no egao de arasu media'],
-    ['天才的なアイドル様', 'Tensaiteki na aidoru-sama']
+    ['天才的なアイドル様', 'Tensaiteki na aidoru-sama'],
+    ['一人で歩く', 'Hitori de aruku'],
+    ['二人の夢', 'Futari no yume']
   ])('%s → %s', async (ja, rom) => expect((await romanizeJapanese([ja]))[0]).toBe(rom))
 
   it('leaves lines without Japanese alone', async () => expect(await romanizeJapanese(['Hello there', ''])).toEqual([null, null]))

@@ -5,6 +5,7 @@ import YAML from 'yaml'
 import { createHash } from 'node:crypto'
 import type { LyricSourceId, Lyrics, PlayerState } from '../shared/types'
 import { cleanArtist, cleanTitle, fromLyricsfile, looksFakeSynced, parseLrc, similarity, stripCredits } from '../shared/lrc'
+import { checkPairedRomaji } from './japanese'
 
 const API = 'https://lrclib.net/api'
 const USER_AGENT = `Lyrique v${app.getVersion()} (https://github.com/${RELEASES_REPO})`
@@ -328,7 +329,19 @@ export async function findLyrics(state: PlayerState, sources: LyricSourceId[] = 
     wordSynced: false,
     matched: { title: state.title, artist: state.artist, album: state.album, duration: state.duration }
   }
-  return { ...result, tried }
+  return { ...(await withCheckedRomaji(result)), tried }
+}
+
+/** Fix romaji paired with the wrong line; the lyrics as they were if the dictionary won't load. */
+async function withCheckedRomaji(l: Lyrics): Promise<Lyrics> {
+  if (l.kind !== 'synced' || !l.lines.some((x) => x.sub)) return l
+  try {
+    const lines = await checkPairedRomaji(l.lines)
+    return lines === l.lines ? l : { ...l, lines }
+  } catch (err) {
+    console.error('[lyrics] romaji check failed', err)
+    return l
+  }
 }
 
 /* ------------------------------ lyrics picker ------------------------------ */
@@ -423,5 +436,5 @@ export async function listCandidates(state: PlayerState, sources: LyricSourceId[
 /** Lyrics for a listed candidate, or null if it isn't known (list again first). */
 export async function loadCandidate(id: string, durationMs: number): Promise<Lyrics | null> {
   const load = loaders.get(id)
-  return load ? load(durationMs) : null
+  return load ? withCheckedRomaji(await load(durationMs)) : null
 }

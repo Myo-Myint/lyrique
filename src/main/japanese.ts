@@ -7,6 +7,7 @@
 import kuromoji, { type IpadicFeatures, type Tokenizer } from 'kuromoji'
 import { dirname, join } from 'node:path'
 import { toRomaji } from 'wanakana'
+import type { Line } from '../shared/types'
 
 let tokenizer: Promise<Tokenizer<IpadicFeatures>> | null = null
 
@@ -30,6 +31,19 @@ const romaji = (kana: string) => toRomaji(kana.replace(LOAN_RE, (_, k: string, l
 const PARTICLE: Record<string, string> = { は: 'wa', へ: 'e', を: 'o' }
 /** Readings the dictionary gets wrong in lyrics: 愛して is aishite, not the itoshi- of 愛しい. */
 const READING: Record<string, string> = { 愛し: 'アイシ' }
+/** Counted people the dictionary splits into number + suffix (ichi-nin): read as one word. */
+const PEOPLE: Record<string, string> = { 一: 'ヒトリ', 二: 'フタリ' }
+
+function joinPeople(tokens: IpadicFeatures[]): IpadicFeatures[] {
+  const out: IpadicFeatures[] = []
+  for (const t of tokens) {
+    const prev = out[out.length - 1]
+    if (prev && t.surface_form === '人' && PEOPLE[prev.surface_form]) {
+      out[out.length - 1] = { ...prev, surface_form: prev.surface_form + '人', pos: '名詞', pos_detail_1: '一般', reading: PEOPLE[prev.surface_form]! }
+    } else out.push(t)
+  }
+  return out
+}
 
 /** Stays on the word before it: verb endings, auxiliaries, conjunctive て/で/ば, suffixes. */
 function glues(t: IpadicFeatures, prev: IpadicFeatures): boolean {
@@ -84,5 +98,71 @@ function romanizeTokens(tokens: IpadicFeatures[]): string {
 /** Romaji for each line, or null where a line has no Japanese. Throws if the dictionary won't load. */
 export async function romanizeJapanese(lines: string[]): Promise<Array<string | null>> {
   const tk = await load()
-  return lines.map((line) => (JAPANESE.test(line) ? romanizeTokens(tk.tokenize(line)) || null : null))
+  return lines.map((line) => (JAPANESE.test(line) ? romanizeTokens(joinPeople(tk.tokenize(line))) || null : null))
+}
+
+/** Letters only, with the spelling choices romaji writers differ on folded together (kyō/kyou/kyoo, wo/o). */
+function foldRomaji(s: string): string {
+  return s
+    .replace(/\([^)]*\)/g, ' ') // ad-libs some files add: (Hey! Hey!)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z]/g, '')
+    .replace(/wo/g, 'o')
+    .replace(/ou|oo/g, 'o')
+    .replace(/uu/g, 'u')
+    .replace(/ee|ei/g, 'e')
+    .replace(/aa/g, 'a')
+    .replace(/ii/g, 'i')
+    .replace(/n(?=[bmp])/g, 'm')
+}
+
+function bigrams(s: string): Map<string, number> {
+  const m = new Map<string, number>()
+  for (let i = 0; i < s.length - 1; i++) m.set(s.slice(i, i + 2), (m.get(s.slice(i, i + 2)) ?? 0) + 1)
+  return m
+}
+
+/** Share of a's letter pairs that b also has. */
+function covered(a: string, b: string): number {
+  const bg = bigrams(b)
+  let hit = 0
+  let n = 0
+  for (const [g, c] of bigrams(a)) {
+    n += c
+    hit += Math.min(c, bg.get(g) ?? 0)
+  }
+  return n ? hit / n : 1
+}
+
+/** 0–1: how well two romanizations of the same line agree, whichever way they spell things. */
+export function romajiAgreement(a: string, b: string): number {
+  const x = foldRomaji(a)
+  const y = foldRomaji(b)
+  if (!x || !y) return x === y ? 1 : 0
+  return Math.min(covered(x, y), covered(y, x))
+}
+
+/** Below this, the file's romaji belongs to another line (or half of one). */
+const AGREE = 0.8
+
+/**
+ * Some lyrics files pair each Japanese line with romaji that slipped a line or two out of step,
+ * so a line shows the romaji of its neighbour. When most of a file's romaji agrees with ours
+ * (so it is romaji, not a translation), lines whose romaji clearly doesn't get ours instead.
+ */
+export async function checkPairedRomaji(lines: Line[]): Promise<Line[]> {
+  const idx = lines.map((_, i) => i).filter((i) => {
+    const sub = lines[i]!.sub
+    return !!sub && !sub.includes(' / ') && JAPANESE.test(lines[i]!.text) && !JAPANESE.test(sub) && /[a-z]/i.test(sub)
+  })
+  if (idx.length < 3) return lines
+  const ours = await romanizeJapanese(idx.map((i) => lines[i]!.text))
+  const scores = idx.map((i, k) => (ours[k] ? romajiAgreement(lines[i]!.sub!, ours[k]!) : 1))
+  const bad = scores.flatMap((s, k) => (s < AGREE ? [k] : []))
+  if (!bad.length || bad.length * 2 > idx.length) return lines
+  const out = lines.slice()
+  for (const k of bad) out[idx[k]!] = { ...out[idx[k]!]!, sub: ours[k]! }
+  return out
 }
